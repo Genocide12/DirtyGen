@@ -1,167 +1,92 @@
 <!DOCTYPE html>
-<html lang="ru" data-theme="dark">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ГРЯЗНЫЙ ГЕНА · DIRTYGEN·ТВ — Я НЕ В СЕТИ + 2 клипа</title>
-<meta name="description" content="Три клипа Грязного Гены на одном телеканале: «Я не в сети», «Трек 2», «Трек 3». Крути колесо — смени канал. Связи нет. Бас есть.">
-<meta property="og:title" content="DIRTYGEN·ТВ — ГРЯЗНЫЙ ГЕНА">
-<meta property="og:description" content="3 клипа · крутись по каналам · тьма → свет">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DIRTYGEN·ТВ — Я НЕ В СЕТИ</title>
+<meta name="description" content="Смени канал — смени взгляд. DIRTYGEN «Я не в сети» — клип на трёх частотах.">
+<meta property="og:title" content="DIRTYGEN — Я НЕ В СЕТИ">
+<meta property="og:description" content="Смени канал — смени взгляд.">
 <meta property="og:image" content="assets/img/og.png">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#05060a">
-<link rel="icon" type="image/png" href="assets/img/cover.png">
+<link rel="icon" href="assets/img/og.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Rubik:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/app.css">
 </head>
 <body>
 
-<canvas id="tvNoise" aria-hidden="true"></canvas>
-
-<header class="hud">
-  <div class="logo">DIRTYGEN<span>·ТВ</span></div>
-  <div class="hud-mid" id="hudName">CH 01 · Я НЕ В СЕТИ</div>
-  <button class="hud-btn" id="themeBtn" title="Тема (K)">ТЕМА</button>
-</header>
-
-<nav class="dots" id="dots" aria-label="Каналы"></nav>
-
-<div class="scroll-hint" id="scrollHint" aria-hidden="true">
-  <span>крути вниз — смени канал</span>
-  <i>▼</i>
+<!-- Standby / power screen -->
+<div id="power">
+  <div class="power-inner">
+    <div class="power-brand">DIRTYGEN<span>·ТВ</span></div>
+    <div class="power-dot"></div>
+    <div class="power-hint">нажми, чтобы включить</div>
+  </div>
 </div>
 
-<!-- ============ CH 01 · ГЛАВНАЯ ============ -->
-<section class="channel active" data-name="CH 01 · Я НЕ В СЕТИ">
-  <div class="hero-bg"></div>
-  <div class="hero-grad"></div>
-  <div class="hero">
-    <p class="hero-pre">ГРЯЗНЫЙ&nbsp;ГЕНА&nbsp;·&nbsp;3&nbsp;КЛИПА&nbsp;·&nbsp;ОДИН&nbsp;КАНАЛ</p>
-    <h1 class="glitch" data-text="Я НЕ В СЕТИ">Я НЕ В СЕТИ</h1>
-    <p class="hero-sub">клип 3:06 · неон · тёмный бас · тьма → свет</p>
-    <div class="hero-cta">
-      <button class="btn btn-primary" data-go="1">▶&nbsp;Смотреть клип</button>
-      <button class="btn btn-ghost" data-go="4">Артист и ссылки</button>
-    </div>
-    <div class="hero-meta">
-      <span>CH 02 — Я НЕ В СЕТИ</span><i></i>
-      <span>CH 03 — ТРЕК 2</span><i></i>
-      <span>CH 04 — ТРЕК 3</span>
-    </div>
-  </div>
-  <div class="marquee"><div class="marquee-track">
-    <span>СВЯЗИ НЕТ • БАС ЕСТЬ • СМЕНИ КАНАЛ • ВЗГЛЯНИ ИНАЧЕ • МИР НЕ ИЗМЕНИЛСЯ • ТЫ СМОТРИШЬ ИНАЧЕ • ВЫХОД ИЗ КРУГА • </span>
-    <span>СВЯЗИ НЕТ • БАС ЕСТЬ • СМЕНИ КАНАЛ • ВЗГЛЯНИ ИНАЧЕ • МИР НЕ ИЗМЕНИЛСЯ • ТЫ СМОТРИШЬ ИНАЧЕ • ВЫХОД ИЗ КРУГА • </span>
-  </div></div>
-</section>
+<!-- TV static flash overlay -->
+<canvas id="static"></canvas>
 
-<!-- ============ CH 02 · КЛИП «Я НЕ В СЕТИ» ============ -->
-<section class="channel channel-video" data-name="CH 02 · КЛИП — Я НЕ В СЕТИ">
-  <video id="vid1" poster="assets/img/poster.jpg" preload="metadata" playsinline controls>
-    <source src="video/ya_ne_v_seti_clip.mp4" type="video/mp4">
-  </video>
-  <div class="v-scan"></div>
-  <div class="v-bar">
-    <div class="v-title"><b>ГРЯЗНЫЙ ГЕНА</b><span>Я НЕ В СЕТИ · 3:06</span></div>
-    <div class="v-actions">
-      <button class="v-btn" id="lyrBtn" title="Текст песни (T)">ТЕКСТ: ВЫКЛ</button>
-      <a class="v-btn" href="video/ya_ne_v_seti_clip.mp4" download>⬇ MP4</a>
-      <a class="v-btn" href="audio/ya_ne_v_seti.mp3" download>⬇ MP3</a>
-    </div>
-  </div>
-  <div class="lyr-ov" id="lyrOv"></div>
-  <button class="big-play" data-play="vid1"><span>▶</span><em>PLAY</em></button>
-</section>
+<!-- Channels -->
+<main id="tv">
 
-<!-- ============ CH 03 · КЛИП «ТРЕК 2» ============ -->
-<section class="channel channel-video" data-name="CH 03 · КЛИП — ТРЕК 2">
-  <video id="vid2" poster="assets/img/poster2.jpg" preload="metadata" playsinline controls>
-    <source src="video/trek2_clip.mp4" type="video/mp4">
-  </video>
-  <div class="v-scan"></div>
-  <div class="v-bar">
-    <div class="v-title"><b>ГРЯЗНЫЙ ГЕНА</b><span>ТРЕК 2 · 3:34 · неоновая версия</span></div>
-    <div class="v-actions">
-      <a class="v-btn" href="video/trek2_clip.mp4" download>⬇ MP4</a>
-      <a class="v-btn" href="audio/trek2.mp3" download>⬇ MP3</a>
-    </div>
-  </div>
-  <button class="big-play" data-play="vid2"><span>▶</span><em>PLAY</em></button>
-</section>
+  <section class="channel" data-ch="0">
+    <video src="video/ch1_main.mp4" preload="auto" playsinline></video>
+    <div class="vign"></div>
+  </section>
 
-<!-- ============ CH 04 · КЛИП «ТРЕК 3» ============ -->
-<section class="channel channel-video" data-name="CH 04 · КЛИП — ТРЕК 3">
-  <video id="vid3" poster="assets/img/poster3.jpg" preload="metadata" playsinline controls>
-    <source src="video/trek3_clip.mp4" type="video/mp4">
-  </video>
-  <div class="v-scan"></div>
-  <div class="v-bar">
-    <div class="v-title"><b>ГРЯЗНЫЙ ГЕНА</b><span>ТРЕК 3 · 4:19 · полный фильм</span></div>
-    <div class="v-actions">
-      <a class="v-btn" href="video/trek3_clip.mp4" download>⬇ MP4</a>
-      <a class="v-btn" href="audio/trek3.mp3" download>⬇ MP3</a>
-    </div>
-  </div>
-  <button class="big-play" data-play="vid3"><span>▶</span><em>PLAY</em></button>
-</section>
+  <section class="channel" data-ch="1">
+    <video src="video/ch2_night.mp4" preload="metadata" playsinline></video>
+    <div class="vign"></div>
+  </section>
 
-<!-- ============ CH 05 · МУЗЫКАНТ ============ -->
-<section class="channel channel-artist" data-name="CH 05 · МУЗЫКАНТ">
-  <div class="artist-scroll">
-    <div class="artist-wrap">
-      <div class="artist-photo">
-        <img src="assets/img/artist.png" alt="Грязный Гена">
-      </div>
-      <div class="artist-info">
-        <p class="a-pre">КАНАЛ ПЯТЫЙ · АРТИСТ</p>
-        <h2 class="a-name glitch-s" data-text="ГРЯЗНЫЙ ГЕНА">ГРЯЗНЫЙ ГЕНА</h2>
-        <p class="a-bio">
-          Грязный Гена — голос ночных городов и глухих дворов. Тёмный рэп с электронным
-          басом: низкий, слегка демонический звук в интро, который к финалу очищается
-          и становится светом. Три клипа на этом канале — одна история: как меняется
-          не мир, а настройка приёмника в голове.
-        </p>
-        <p class="a-bio">
-          Променял связь на бас. В сети его не найти — и в этом весь смысл: настоящая
-          связь не через кабель, а через частоту, на которой бьётся низкий звук.
-          Смени канал — и поймаешь сигнал.
-        </p>
-        <div class="chips">
-          <span class="chip">тёмный рэп</span>
-          <span class="chip">электроника</span>
-          <span class="chip">808-бас</span>
-          <span class="chip">DIRTYGEN</span>
-          <span class="chip">не в сети с 2026</span>
-        </div>
-        <div class="links">
-          <a class="link-card" href="https://github.com/Genocide12/DirtyGen" target="_blank" rel="noopener">
-            <b>GitHub · DirtyGen</b><span>исходники клипов и сайт</span><i>→</i>
-          </a>
-          <button class="link-card" data-go="1">
-            <b>Клип «Я не в сети»</b><span>3:06 · дроп на 0:52 · свет на 2:48</span><i>→</i>
-          </button>
-          <button class="link-card" data-go="2">
-            <b>Клип «Трек 2»</b><span>3:34 · неоновая версия</span><i>→</i>
-          </button>
-          <button class="link-card" data-go="3">
-            <b>Клип «Трек 3»</b><span>4:19 · пульс-финал</span><i>→</i>
-          </button>
-          <a class="link-card" href="video/ya_ne_v_seti_clip.mp4" download>
-            <b>Скачать все клипы</b><span>MP4 · 1080p · 30fps</span><i>⬇</i>
-          </a>
-        </div>
-      </div>
-    </div>
-    <footer class="foot">
-      <div class="foot-big glitch-s" data-text="СВЯЗИ НЕТ. БАС ЕСТЬ.">СВЯЗИ НЕТ. БАС ЕСТЬ.</div>
-      <p class="foot-copy">© 2026 Грязный Гена · DIRTYGEN · клипы собраны нейросетью по смыслу песен<br>
-      клавиши: ↓↑ — каналы · Space — пауза · T — текст · K — тема</p>
-    </footer>
-  </div>
-</section>
+  <section class="channel" data-ch="2">
+    <video src="video/ch3_dawn.mp4" preload="metadata" playsinline></video>
+    <div class="vign"></div>
+  </section>
 
-<script src="assets/js/main.js"></script>
+  <section class="channel artist" data-ch="3">
+    <div class="vign"></div>
+    <div class="artist-inner">
+      <div class="artist-tag">CH 04 · ИСПОЛНИТЕЛЬ</div>
+      <h1 class="glitch" data-text="DIRTYGEN">DIRTYGEN</h1>
+      <div class="quote">«Смени канал — смени взгляд»</div>
+      <nav class="links">
+        <a href="https://github.com/Genocide12/DirtyGen" target="_blank" rel="noopener">GITHUB&nbsp;↗</a>
+        <a href="#" class="nosignal" data-name="YOUTUBE">YOUTUBE</a>
+        <a href="#" class="nosignal" data-name="TELEGRAM">TELEGRAM</a>
+      </nav>
+      <div class="copy">© DIRTYGEN · «Я НЕ В СЕТИ»</div>
+    </div>
+  </section>
+
+</main>
+
+<!-- OSD chrome -->
+<header id="osdTop">
+  <div class="osd-brand">DIRTYGEN·ТВ</div>
+  <div class="osd-ch" id="osdCh">CH 01</div>
+</header>
+
+<div id="chSplash"><span id="splashNum">CH 01</span><span id="splashName">Я НЕ В СЕТИ</span></div>
+
+<footer id="osdBottom">
+  <div id="progress"><div id="progressFill"></div><div id="progressHead"></div></div>
+  <div class="osd-row">
+    <span id="osdTitle">Я НЕ В СЕТИ</span>
+    <span class="osd-hint" id="osdHint">колесо&nbsp;/&nbsp;свайп — канал&nbsp;·&nbsp;SPACE — пауза&nbsp;·&nbsp;M — звук&nbsp;·&nbsp;F — во&nbsp;весь&nbsp;экран</span>
+    <span id="osdTime">0:00 / 0:00</span>
+  </div>
+</footer>
+
+<div id="soundChip">🔇 нажми — включить звук</div>
+<div id="endCard"><span>SWIPE →</span></div>
+
+<!-- CRT ambience -->
+<div id="crt"></div>
+
+<script src="assets/js/app.js"></script>
 </body>
 </html>

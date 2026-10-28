@@ -1,4 +1,3 @@
-frames_4k/
 .build/
 *.log
-__pycache__/
+aivideo/.json_*
