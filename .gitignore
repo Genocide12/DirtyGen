@@ -1,0 +1,4 @@
+frames_4k/
+.build/
+*.log
+__pycache__/

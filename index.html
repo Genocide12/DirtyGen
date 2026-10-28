@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ГРЯЗНЫЙ ГЕНА — Я НЕ В СЕТИ | официальный клип | DIRTYGEN</title>
+<meta name="description" content="Официальный видеоклип Грязного Гены на трек «Я не в сети» (3:07). Неон, смена канала и путь от тьмы к свету. Связи нет. Бас есть.">
+<meta property="og:title" content="ГРЯЗНЫЙ ГЕНА — Я НЕ В СЕТИ">
+<meta property="og:description" content="Видеоклип 3:07. Смени канал — взгляни иначе. Связи нет. Бас есть.">
+<meta property="og:image" content="assets/img/og.png">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#05060a">
+<link rel="icon" type="image/png" href="assets/img/cover.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Rubik:wght@300;400;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+
+<canvas id="staticIntro" aria-hidden="true"></canvas>
+<canvas id="flash" aria-hidden="true"></canvas>
+<div class="scanlines" aria-hidden="true"></div>
+
+<header class="topbar">
+  <a class="logo" href="#top">DIRTYGEN<span>·ТВ</span></a>
+  <nav class="nav">
+    <a href="#clip">Клип</a>
+    <a href="#meaning">Смысл</a>
+    <a href="#scenes">Сцены</a>
+    <a href="#lyrics">Текст</a>
+    <a href="#artist">Артист</a>
+  </nav>
+  <button id="chSwitch" class="ch-switch" title="Смени канал (клавиша K)">
+    <span class="sw-ico">⏻</span> СМЕНИ КАНАЛ
+  </button>
+</header>
+
+<main id="top">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="hero">
+    <div class="hero-bg" aria-hidden="true"></div>
+    <div class="hero-vignette" aria-hidden="true"></div>
+    <div class="hero-inner">
+      <p class="hero-pre">ГРЯЗНЫЙ&nbsp;ГЕНА представляет</p>
+      <h1 class="glitch" data-text="Я НЕ В СЕТИ">Я НЕ В СЕТИ</h1>
+      <p class="hero-sub">официальный видеоклип · 3:07 · неон / тёмный бас</p>
+      <div class="hero-cta">
+        <a href="#clip" class="btn btn-primary">▶&nbsp; Смотреть клип</a>
+        <a href="#lyrics" class="btn btn-ghost">Текст песни</a>
+      </div>
+      <div class="hero-meta">
+        <span>28 сцен</span><i></i><span>2 дропа</span><i></i><span>1 канал</span>
+      </div>
+    </div>
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>СВЯЗИ НЕТ • БАС ЕСТЬ • СМЕНИ КАНАЛ • ВЗГЛЯНИ ИНАЧЕ • МИР НЕ ИЗМЕНИЛСЯ • ТЫ СМОТРИШЬ ИНАЧЕ • ВЫХОД ИЗ КРУГА • </span>
+        <span>СВЯЗИ НЕТ • БАС ЕСТЬ • СМЕНИ КАНАЛ • ВЗГЛЯНИ ИНАЧЕ • МИР НЕ ИЗМЕНИЛСЯ • ТЫ СМОТРИШЬ ИНАЧЕ • ВЫХОД ИЗ КРУГА • </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= КЛИП ================= -->
+  <section id="clip" class="section clip">
+    <div class="wrap">
+      <h2 class="sec-title reveal"><span class="num">01</span>Клип</h2>
+      <p class="sec-sub reveal">Тот же город. Тот же свет. Только разных взглядов не счесть.</p>
+
+      <div class="tv reveal">
+        <div class="tv-screen">
+          <video id="player" poster="assets/img/poster.jpg" controls preload="metadata" playsinline>
+            <source src="video/ya_ne_v_seti_clip.mp4" type="video/mp4">
+            <p>Твой браузер не поддерживает видео. <a href="video/ya_ne_v_seti_clip.mp4">Скачай клип</a>.</p>
+          </video>
+          <div class="crt" aria-hidden="true"></div>
+          <button id="bigPlay" class="big-play" aria-label="Смотреть">
+            <span>▶</span>
+            <em>PLAY</em>
+          </button>
+        </div>
+        <div class="tv-base">
+          <span class="led"></span>
+          <span class="tv-name">DIRTYGEN · CH 02</span>
+          <span class="tv-mode" id="tvMode">NO SIGNAL / БАС ЕСТЬ</span>
+        </div>
+      </div>
+
+      <canvas id="viz" class="reveal" aria-hidden="true"></canvas>
+
+      <div class="chapters reveal" id="chapters" role="tablist" aria-label="Главы клипа"></div>
+
+      <div class="dl-row reveal">
+        <a class="btn btn-ghost dl" href="video/ya_ne_v_seti_clip.mp4" download>⬇ Клип · MP4 · 1080p</a>
+        <a class="btn btn-ghost dl" href="audio/soundtrack_demo.mp3" download>⬇ Демо-саундтрек · MP3</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= СМЫСЛ ================= -->
+  <section id="meaning" class="section meaning">
+    <div class="wrap">
+      <h2 class="sec-title reveal"><span class="num">02</span>Смысл</h2>
+      <p class="sec-sub reveal">«Мир не изменился — ты смотришь иначе».</p>
+      <div class="cards">
+        <article class="card reveal">
+          <div class="card-ico">🏙</div>
+          <h3>Тот же город</h3>
+          <p>Утро, знакомый маршрут, серая рутина. Мир вокруг не обязан меняться под тебя — он просто есть. Одни годами винят обстоятельства, другие ищут возможности в том же самом месте.</p>
+        </article>
+        <article class="card reveal">
+          <div class="card-ico">📺</div>
+          <h3>Смени канал</h3>
+          <p>Взгляд — это канал. Не жди знака свыше: иногда достаточно сделать шаг поближе и переключиться. Не всё в этом мире зависит от нас — но и не всё предрешено.</p>
+        </article>
+        <article class="card reveal">
+          <div class="card-ico">🌅</div>
+          <h3>Выход из круга</h3>
+          <p>Между тем, что случилось, и тем, что придёт, есть короткое место — выбор. Клип проходит арку от ночных неоновых помех к золотому рассвету: тьма не побеждена — просто сменился канал.</p>
+        </article>
+      </div>
+      <div class="arc reveal" aria-hidden="true">
+        <div class="arc-bar">
+          <span class="arc-dot" style="--p:0%" data-label="Тьма"></span>
+          <span class="arc-dot" style="--p:32%" data-label="Рутина"></span>
+          <span class="arc-dot" style="--p:60%" data-label="Выбор"></span>
+          <span class="arc-dot" style="--p:100%" data-label="Свет"></span>
+        </div>
+        <div class="arc-labels"><span>0:00 тьма</span><span>3:07 свет</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= СЦЕНЫ ================= -->
+  <section id="scenes" class="section scenes">
+    <div class="wrap">
+      <h2 class="sec-title reveal"><span class="num">03</span>Сцены</h2>
+      <p class="sec-sub reveal">Десять глав — от мегаполиса под грозой до рассвета на крыше. Кликни — клип перемотается.</p>
+      <div class="scene-grid" id="sceneGrid"></div>
+    </div>
+  </section>
+
+  <!-- ================= ТЕКСТ ================= -->
+  <section id="lyrics" class="section lyrics">
+    <div class="wrap">
+      <h2 class="sec-title reveal"><span class="num">04</span>Текст</h2>
+      <p class="sec-sub reveal">Запусти клип — строки подсветятся сами, в такт.</p>
+      <div class="terminal reveal">
+        <div class="term-head">
+          <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+          <span class="term-title">gen@dirtygen:~/text_pesni</span>
+        </div>
+        <div class="term-body" id="termBody"></div>
+        <div class="term-hint">пробел — пауза · ←/→ — ±5 сек · K — сменить канал</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= АРТИСТ ================= -->
+  <section id="artist" class="section artist">
+    <div class="wrap artist-wrap">
+      <div class="artist-photo reveal">
+        <img src="assets/img/artist.png" alt="Грязный Гена" loading="lazy">
+        <div class="photo-noise" aria-hidden="true"></div>
+      </div>
+      <div class="artist-info">
+        <h2 class="sec-title reveal"><span class="num">05</span>Артист</h2>
+        <h3 class="artist-name reveal">ГРЯЗНЫЙ&nbsp;ГЕНА</h3>
+        <p class="artist-bio reveal">
+          Грязный Гена — голос ночных городов и глухих дворов. Тёмный рэп с электронным басом:
+          низкий, слегка демонический звук в интро, который к финалу очищается и становится светом.
+          «Я не в сети» — история о том, как один человек меняет не мир, а настройку приёмника
+          в собственной голове.
+        </p>
+        <p class="artist-bio reveal">
+          Променял связь на бас. В сети его не найти — и в этом весь смысл: настоящая связь
+          не через кабель, а через частоту, на которой бьётся низкий звук. Смени канал —
+          и поймаешь сигнал.
+        </p>
+        <div class="chips reveal">
+          <span class="chip">тёмный рэп</span>
+          <span class="chip">электроника</span>
+          <span class="chip">808-бас</span>
+          <span class="chip">DIRTYGEN</span>
+          <span class="chip">не в сети с 2026</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-big glitch-s" data-text="СВЯЗИ НЕТ. БАС ЕСТЬ.">СВЯЗИ НЕТ. БАС ЕСТЬ.</div>
+    <div class="footer-links">
+      <a href="https://github.com/Genocide12/DirtyGen" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://genocide12.github.io/DirtyGen/" target="_blank" rel="noopener">Эта страница</a>
+      <a href="video/ya_ne_v_seti_clip.mp4" download>Скачать клип</a>
+    </div>
+    <p class="footer-copy">© 2026 Грязный Гена · DIRTYGEN · клип собран нейросетью по смыслу песни · 1080p / 30fps / 3:07</p>
+  </div>
+</footer>
+
+<script src="assets/js/main.js"></script>
+</body>
+</html>
