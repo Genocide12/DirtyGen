@@ -36,11 +36,12 @@ def run(cmd, tag):
 
 
 files = []
+src_mt = os.path.getmtime(SRC)
 for i in range(n):
     cp = os.path.join(CH, f"w{i:02d}.mp4")
     files.append(cp)
-    if os.path.exists(cp) and os.path.getsize(cp) > 10000:
-        continue
+    if os.path.exists(cp) and os.path.getsize(cp) > 10000 and os.path.getmtime(cp) > src_mt:
+        continue  # чанк свежее источника — валиден
     st = i * 30.0
     fr = min(CF, total - i * CF)
     run(["ffmpeg", "-y", "-v", "error", "-ss", f"{st:.3f}", "-i", SRC,
@@ -51,7 +52,8 @@ with open(lst, "w") as fp:
     for p in files:
         fp.write(f"file '{p}'\n")
 cat = os.path.join(CH, "cat.mp4")
-if not (os.path.exists(cat) and os.path.getsize(cat) > 1e6):
+if not (os.path.exists(cat) and os.path.getsize(cat) > 1e6
+        and os.path.getmtime(cat) > src_mt):
     run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0",
          "-i", lst, "-c", "copy", cat], "concat")
 

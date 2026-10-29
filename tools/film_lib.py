@@ -171,3 +171,98 @@ def render_audio(out_wav, bursts):
         print(r.stderr[-1500:], file=sys.stderr)
         raise SystemExit("audio mix failed")
     return out_wav
+
+
+# ======================================================================
+#  v2: СТОП-КАДРЫ (4K раскадровка, 28 сцен) + МОРФЫ
+# ======================================================================
+STILL_GRADE = ("eq=contrast=1.05:saturation=1.06,"
+               "noise=alls=5:allf=t")
+
+FR4 = lambda n: os.path.join(BASE, "frames_4k", f"{n:02d}.jpg")
+
+
+def render_still(pid, img, dur, z0=1.0, z1=1.25, pan="", ydrift=0.0,
+                 extra="", fades=(0.0, 0.0)):
+    """Кусок из стоп-кадра 4K: наезд/панорама (zoompan), зерно.
+    pan: '' центр, 'lr' слева направо, 'rl' справа налево.
+    ydrift>0: камера всплывает (для кадров 'вверх к свету').
+    """
+    out = piece_path(pid)
+    if os.path.exists(out) and os.path.getsize(out) > 5000:
+        return out
+    T = max(2, round(dur * 30))
+    if pan in ("lr", "rl"):
+        z = max(z0, z1, 1.25)
+        if pan == "lr":
+            x = f"(iw-iw/zoom)*on/{T}"
+        else:
+            x = f"(iw-iw/zoom)*(1-on/{T})"
+        y = "ih/2-(ih/zoom/2)"
+    else:
+        z = 0
+        x = "iw/2-(iw/zoom/2)"
+        if ydrift > 0:
+            y = f"(ih-ih/zoom)*(0.5-{ydrift}*on/{T})"
+        else:
+            y = "ih/2-(ih/zoom/2)"
+    if pan:
+        zexpr = f"{z:.4f}"
+    else:
+        zexpr = f"{z0:.4f}+({z1:.4f}-{z0:.4f})*on/{T}"
+    chain = [
+        "scale=3840:2160",
+        f"zoompan=z='{zexpr}':x='{x}':y='{y}':d=1:s=1920x1080:fps=30",
+        STILL_GRADE,
+    ]
+    if extra:
+        chain.append(extra)
+    fi, fo = fades
+    if fi > 0:
+        chain.append(f"fade=t=in:st=0:d={fi}")
+    if fo > 0:
+        chain.append(f"fade=t=out:st={max(0.0, dur - fo):.3f}:d={fo}")
+    chain.append("format=yuv420p")
+    cmd = ["ffmpeg", "-y", "-v", "error",
+           "-loop", "1", "-framerate", "30", "-t", f"{dur:.3f}", "-i", img,
+           "-an", "-vf", ",".join(chain), "-frames:v", str(T)] + X264 + [out]
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if r.returncode != 0:
+        print(r.stderr[-1500:], file=sys.stderr)
+        raise SystemExit(f"still {pid} failed")
+    return out
+
+
+def render_dissolve(pid, imgA, imgB, dur, crop=1.0, fades=(0.0, 0.0)):
+    """Длинный dissolve A->B (xfade) с одинаковым кропом обоих кадров.
+    Город не движется - меняется свет. crop=1.15 - продолжение наезда
+    предыдущего куска (бесшовный стык). Работает в реальном времени."""
+    out = piece_path(pid)
+    if os.path.exists(out) and os.path.getsize(out) > 5000:
+        return out
+    cw = round(3840 / crop / 2) * 2
+    ch = round(2160 / crop / 2) * 2
+    pre = ("scale=3840:2160,"
+           f"crop={cw}:{ch}:(iw-{cw})/2:(ih-{ch})/2,"
+           "scale=1920:1080,fps=30,settb=AVTB,setsar=1")
+    fc = (f"[0:v]{pre}[a];[1:v]{pre}[b];"
+          f"[a][b]xfade=transition=fade:duration={dur:.3f}:offset=0,"
+          + STILL_GRADE)
+    fi, fo = fades
+    tail = []
+    if fi > 0:
+        tail.append(f"fade=t=in:st=0:d={fi}")
+    if fo > 0:
+        tail.append(f"fade=t=out:st={max(0.0, dur - fo):.3f}:d={fo}")
+    tail.append("format=yuv420p")
+    fc += "," + ",".join(tail) + "[v]"
+    cmd = ["ffmpeg", "-y", "-v", "error",
+           "-loop", "1", "-framerate", "30", "-t", f"{dur:.3f}", "-i", imgA,
+           "-loop", "1", "-framerate", "30", "-t", f"{dur:.3f}", "-i", imgB,
+           "-filter_complex", fc, "-map", "[v]", "-an",
+           "-frames:v", str(round(dur * 30))] + X264 + [out]
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if r.returncode != 0:
+        print(r.stderr[-1500:], file=sys.stderr)
+        raise SystemExit(f"dissolve {pid} failed")
+    return out
