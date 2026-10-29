@@ -2,3 +2,4 @@
 *.log
 aivideo/.json_*
 .build_film/
+node_modules
