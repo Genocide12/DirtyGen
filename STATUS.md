@@ -1,7 +1,7 @@
 # DIRTYGEN · лог задачи v4 (читает крон)
 
 > Это «последний лог» в репозитории: агент обновляет его по мере изменения состояния.
-> Обновлён: 2026-10-30 ~03:35 мск · HEAD: единый лог STATUS.md · кадров: **9/14**
+> Обновлён: 2026-10-30 ~23:00 мск · HEAD: 132b1d8 · кадров: **9/14** · крон №485148 каждые 20 мин
 
 ## Факты сейчас
 - Репо локально: `/home/z/my-project/dirtygen` · GitHub: `Genocide12/DirtyGen` · деплой = push в main.
@@ -13,7 +13,7 @@
 1. `pgrep -f 'film_gen|build_film|encode_web'` — если что-то работает: ответить одной строкой «работа идёт: N/14», ничего не запускать.
 2. N = `ls aivideo/film/Q*.mp4 | wc -l`:
    - **N<14** → `node tools/film_gen_par.mjs 530 4` (параллельный планировщик, 429-ретраи встроены). Ответить одной строкой «генерация: N/14». Клип НЕ собирать!
-   - **N=14** → `python3 tools/build_film.py` → `python3 tools/encode_web.py` (таймаут убивает кодирование — это норма, resume: просто запускать повторно до надписи ГОТОВО) → `git add -A && git add -f .build_film/gen_state.json && git commit -m "CH 01 v4: AI-кадры" && git push` → ждать 90с → проверить, что content-length `https://genocide12.github.io/DirtyGen/video/ch1_main.mp4` изменился → УДАЛИТЬ cron-задачу и коротко отчитаться юзеру (что стало лучше в клипе).
+   - **N=14** → `python3 tools/build_film.py` → `python3 tools/encode_web.py` (таймаут убивает кодирование — это норма, resume: просто запускать повторно до надписи ГОТОВО) → `git add -A && git add -f .build_film/gen_state.json && git commit -m "CH 01 v4: AI-кадры" && git push` → ждать 90с → проверить, что content-length `https://genocide12.github.io/DirtyGen/video/ch1_main.mp4` изменился → УДАЛИТЬ cron-задачу №485148 и РАЗБУДИТЬ юзера сообщением-уведомлением в чате: первая строка «!!! КЛИП v4 ГОТОВ — СМЕНИ КАНАЛ !!!», дальше ссылка https://genocide12.github.io/DirtyGen/ и 3–5 строк что стало лучше в клипе (живые AI-кадры вместо слайдов).
 3. Обновить этот файл (счётчик кадров, дату, HEAD) и запушить вместе с новым прогрессом.
 4. Страховка от отката диска (бывало 3 раза!): после каждого нового кадра `git add aivideo/film && git add -f .build_film/gen_state.json && git commit -m "v4: N/14" && git push`.
 
