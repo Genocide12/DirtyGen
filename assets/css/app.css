@@ -280,10 +280,29 @@ body.on:not(.idle) #osdTop { opacity: 1; }
   font-size: 13px; letter-spacing: .3em;
   color: var(--cyan);
   display: none;
+  pointer-events: none;
   animation: endPulse 1.6s infinite;
 }
 #endCard.show { display: block; }
 @keyframes endPulse { 0%,100% { opacity: .4; } 50% { opacity: 1; } }
+
+/* ---------- индикатор паузы (тап по экрану) ---------- */
+#pauseBadge {
+  position: fixed; inset: 0; z-index: 45;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  opacity: 0; transition: opacity .22s;
+  background: rgba(0, 0, 0, .38);
+}
+#pauseBadge.show { opacity: 1; }
+#pauseBadge span {
+  font-family: "Unbounded", sans-serif;
+  font-weight: 900;
+  font-size: clamp(20px, 5vw, 46px);
+  letter-spacing: .22em; padding-left: .22em;
+  color: var(--fg);
+  text-shadow: 2px 0 var(--cyan), -2px 0 var(--magenta);
+}
 
 /* ---------- CRT-атмосфера ---------- */
 #crt {

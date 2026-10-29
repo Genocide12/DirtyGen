@@ -25,6 +25,8 @@
   let lastSwitch = 0;
   let audioCtx = null;
   let soundRetry = false;
+  let userPaused = false; // пользователь поставил паузу тапом — не трогаем
+  let playToken = 0;      // гасит висящие ретраи play() при переключении/паузе
 
   /* ---------- вспышка помех: буфер под пропорции экрана ---------- */
   /* одинаковые квадратные зёрна шума на любом экране (телефон/десктоп) */
@@ -89,19 +91,33 @@
     })();
   }
 
-  /* ---------- запуск видео с страховкой для мобильных ---------- */
-  /* если браузер отклонил воспроизведение со звуком — стартуем без звука,
-     звук включится при первом касании (retrySound) — клип никогда не «зависает» */
+  /* ---------- запуск видео: ретраи, пока клип не пойдёт ---------- */
+  /* AbortError (медиа ещё грузится — тяжёлый файл) лечится повтором с задержкой,
+     NotAllowedError (жёсткая политика автоплея) — тихий старт, звук вернётся
+     первым тапом (retrySound). Клип на открытом канале не должен «зависать» */
   function startVideo(v) {
-    const p = v.play();
-    if (p && p.catch) {
-      p.catch(() => {
-        v.muted = true;
-        const p2 = v.play();
-        if (p2 && p2.catch) p2.catch(() => {});
-        soundRetry = true;
-      });
-    }
+    const tok = ++playToken;
+    const attempt = (n) => {
+      if (tok !== playToken || v.paused === false) return; // уже играем или ушли дальше
+      v.muted = false;
+      const p = v.play();
+      if (p && p.then) {
+        p.then(() => { if (tok === playToken) soundRetry = false; })
+         .catch((err) => {
+           if (tok !== playToken) return;
+           const name = (err && err.name) || "";
+           if (name === "NotAllowedError") {
+             v.muted = true;
+             const p2 = v.play();
+             if (p2 && p2.catch) p2.catch(() => {});
+             soundRetry = true;
+             return;
+           }
+           if (n < 12) setTimeout(() => attempt(n + 1), 450);
+         });
+      }
+    };
+    attempt(0);
   }
 
   /* ---------- переключение каналов ---------- */
@@ -122,6 +138,9 @@
   function switchTo(i, silent) {
     i = ((i % CHANNELS.length) + CHANNELS.length) % CHANNELS.length;
     if (i === cur && powered) return;
+    lastSwitch = performance.now();
+    userPaused = false; // сменили канал — снова хотим играть
+    hidePauseBadge();
     const prevVideo = videos[cur];
     if (prevVideo && !prevVideo.paused) { prevVideo.pause(); }
 
@@ -139,7 +158,7 @@
     if (isVideo) {
       const v = videos[cur];
       v.preload = "auto";
-      v.muted = false; // звук всегда включён
+      if (v.ended) { v.currentTime = 0; } // возврат на канал — с начала
       startVideo(v);
       // прогреваем все видео-каналы
       for (let k = 0; k < CHANNELS.length; k++) {
@@ -153,7 +172,7 @@
 
   /* ---------- тихий ретрай звука (без интерфейса) ---------- */
   function retrySound() {
-    if (!soundRetry || !powered) return;
+    if (!soundRetry || !powered || userPaused) return;
     const v = videos[cur];
     if (!v || !CHANNELS[cur].file) return;
     v.muted = false;
@@ -199,7 +218,23 @@
       if (sections[cur].querySelector("video") !== v) return;
       endCard.classList.add("show");
     });
+    // данные дошли — текущий канал обязан играть
+    ["canplay", "loadeddata"].forEach((ev) =>
+      v.addEventListener(ev, () => {
+        if (!powered || userPaused || v.ended) return;
+        if (videos[cur] !== v) return;
+        if (v.paused) startVideo(v);
+      })
+    );
   });
+
+  /* сторож: канал открыт и не на паузе — клип должен идти */
+  setInterval(() => {
+    if (!powered || userPaused) return;
+    const v = videos[cur];
+    if (!v || !CHANNELS[cur] || !CHANNELS[cur].file || v.ended) return;
+    if (v.paused) startVideo(v);
+  }, 900);
 
   /* ---------- меню страниц (выпадающий список) ---------- */
   function buildMenu() {
@@ -233,6 +268,38 @@
   /* ---------- клик по бренду -> страница артиста ---------- */
   osdBrand.addEventListener("click", () => {
     if (powered) switchTo(ARTIST);
+  });
+
+  /* ---------- тап по экрану: пауза, повторный тап — продолжить ---------- */
+  const pauseBadge = $("#pauseBadge");
+  function showPauseBadge() { pauseBadge.classList.add("show"); }
+  function hidePauseBadge() { pauseBadge.classList.remove("show"); }
+
+  let lastTap = 0;
+  sections.forEach((s) => {
+    s.addEventListener("click", () => {
+      if (!powered) return;
+      if (chMenu.classList.contains("open")) return;
+      const c = CHANNELS[cur];
+      if (!c || !c.file) return; // страница артиста — без плеера
+      const v = videos[cur];
+      if (!v) return;
+      const now = performance.now();
+      if (now - lastSwitch < 800) return; // это был свайп/переключение
+      if (now - lastTap < 350) return;    // защита от двойного тапа
+      lastTap = now;
+      if (v.paused || v.ended) {
+        userPaused = false;
+        if (v.ended) { v.currentTime = 0; endCard.classList.remove("show"); }
+        startVideo(v);
+        hidePauseBadge();
+      } else {
+        userPaused = true;
+        playToken++; // погасить висящие ретраи
+        v.pause();
+        showPauseBadge();
+      }
+    });
   });
 
   /* ---------- ввод: колесо ---------- */
