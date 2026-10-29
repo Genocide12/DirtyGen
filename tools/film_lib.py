@@ -39,12 +39,14 @@ AIV = {i: os.path.join(BASE, "aivideo", f"0{i}.mp4") for i in (1, 2, 3)}
 GEN = lambda q: os.path.join(BASE, "aivideo", "film", f"{q}.mp4")
 
 # ---- грейды ----
-GRAY = ("eq=saturation=0.12:contrast=0.93:brightness=-0.035:gamma=0.98,"
-        "colorbalance=rs=-0.05:bs=0.10:rm=-0.03:bm=0.05:rh=-0.02:bh=0.04,"
-        "vignette=0.55,noise=alls=5:allf=t+u")
-COLOR = ("eq=saturation=1.20:contrast=1.07:gamma=1.03:brightness=0.005,"
-         "colorbalance=rs=0.04:bs=-0.06:rm=0.05:bm=-0.05:rh=0.06:bh=-0.06,"
-         "noise=alls=5:allf=t+u")
+# СЕРЫЙ канал: монохром. Хрома убивается В КОНЦЕ цепочки (после зерна),
+# иначе colorbalance/noise возвращают цвет (~+14 сат. на тёмных кадрах).
+GRAY = ("eq=saturation=0:contrast=0.94:brightness=-0.03,"
+        "vignette=0.5,noise=alls=6:allf=t,eq=saturation=0")
+# ЖИВОЙ канал: неон вперёд
+COLOR = ("eq=saturation=1.35:contrast=1.10:gamma=1.02,"
+         "colorbalance=rs=0.03:bs=-0.05:rm=0.04:bm=-0.04:rh=0.05:bh=-0.05,"
+         "unsharp=5:5:0.6,noise=alls=4:allf=t")
 
 SLOW2 = "tblend=all_mode=average,framestep=2,setpts=2*PTS"
 
