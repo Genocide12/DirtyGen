@@ -89,6 +89,21 @@
     })();
   }
 
+  /* ---------- запуск видео с страховкой для мобильных ---------- */
+  /* если браузер отклонил воспроизведение со звуком — стартуем без звука,
+     звук включится при первом касании (retrySound) — клип никогда не «зависает» */
+  function startVideo(v) {
+    const p = v.play();
+    if (p && p.catch) {
+      p.catch(() => {
+        v.muted = true;
+        const p2 = v.play();
+        if (p2 && p2.catch) p2.catch(() => {});
+        soundRetry = true;
+      });
+    }
+  }
+
   /* ---------- переключение каналов ---------- */
   function label(i) {
     return CHANNELS[i].num ? CHANNELS[i].num + " / 03" : CHANNELS[i].name;
@@ -125,11 +140,11 @@
       const v = videos[cur];
       v.preload = "auto";
       v.muted = false; // звук всегда включён
-      const p = v.play();
-      if (p && p.catch) p.catch(() => { soundRetry = true; });
-      // прогреваем следующий канал
-      const nxt = (cur + 1) % CHANNELS.length;
-      if (CHANNELS[nxt].file) videos[nxt].preload = "auto";
+      startVideo(v);
+      // прогреваем все видео-каналы
+      for (let k = 0; k < CHANNELS.length; k++) {
+        if (CHANNELS[k].file) videos[k].preload = "auto";
+      }
     }
   }
 
@@ -144,7 +159,10 @@
     v.muted = false;
     const p = v.play();
     if (p && p.catch) {
-      p.then(() => { soundRetry = false; }).catch(() => {});
+      p.then(() => { soundRetry = false; })
+       .catch(() => { v.muted = true; v.play().catch(() => {}); });
+    } else {
+      soundRetry = false;
     }
   }
   ["click", "touchstart", "keydown"].forEach((ev) =>
@@ -164,8 +182,11 @@
     // разблокировка звука синхронно в жесте клика (autoplay policy)
     const v0 = videos[0];
     v0.muted = false;
-    const p0 = v0.play();
-    if (p0 && p0.catch) p0.catch(() => { soundRetry = true; });
+    startVideo(v0);
+    // прогреваем все каналы для мобильных
+    for (let k = 0; k < CHANNELS.length; k++) {
+      if (CHANNELS[k].file) videos[k].preload = "auto";
+    }
     staticFlash(650);
     setTimeout(() => switchTo(0, true), 260);
     setTimeout(() => { power.style.display = "none"; }, 500);

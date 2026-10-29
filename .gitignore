@@ -1,3 +1,4 @@
 .build/
 *.log
 aivideo/.json_*
+.build_film/
