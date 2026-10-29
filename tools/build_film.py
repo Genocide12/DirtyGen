@@ -61,16 +61,25 @@ seg(52.90, 53.10, kind="text", pid="TF1", dur=0.20, fades=("0", "0"),
     lines=[("С М Е Н И   К А Н А Л", 132, "(h-th)/2", "white")])
 
 # ================= ДРОП 1: живой канал (53.1-76.6) =================
+# СЛОВО ↔ ГОРОД: каждая строка припева — крупная типографика поверх
+# затемнённого неона, между словами — живой город.
 seg(53.10, 55.50, kind="still", pid="s12", img=F(12), dur=2.40, z1=1.45, osd="CH 02")  # глаз: отражение города
-seg(55.50, 61.50, kind="src", pid="p22", src=A2, tin=0.00, tout=3.00, speed=S, grade=C)  # неон-мир (то, что он видит)
-seg(61.50, 64.50, kind="still", pid="s13", img=F(13), dur=3.00, z1=1.40,
-    extra="rgbashift=rh=-4:bh=4")                                              # сквозь помехи - в неон
+seg(55.50, 57.10, kind="type", pid="t1", src=A2, tin=0.00, tout=1.60, text="ВЗГЛЯНИ ИНАЧЕ")
+seg(57.10, 58.50, kind="src", pid="p22a", src=A2, tin=1.60, tout=3.00, grade=C)
+seg(58.50, 60.10, kind="type", pid="t2", src=A2, tin=3.00, tout=4.60, text="МИР НЕ ИЗМЕНИЛСЯ")
+seg(60.10, 61.50, kind="src", pid="p22b", src=A2, tin=4.60, tout=6.00, grade=C)
+seg(61.50, 63.10, kind="type", pid="t3", src=A3, tin=0.00, tout=1.60, text="ТЫ СМОТРИШЬ ИНАЧЕ")
+seg(63.10, 64.50, kind="src", pid="p23a", src=A3, tin=1.60, tout=3.00, grade=C)
 seg(64.50, 64.90, kind="static", pid="ST2", band_y=0.62)
-seg(64.90, 67.50, kind="src", pid="p25", src=A3, tin=4.00, tout=6.60, grade=C, osd="CH 03")
-seg(67.50, 70.50, kind="src", pid="p26", src=A1, tin=3.00, tout=6.00, grade=C)
-seg(70.50, 73.50, kind="src", pid="p27", src=A2, tin=4.00, tout=7.00, grade=C)
-seg(73.50, 76.60, kind="src", pid="p28", src=A1, tin=7.00, tout=10.10, grade=C,
-    extra="zoompan=z='1+0.18*on/93':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=1920x1080:fps=30")
+seg(64.90, 66.50, kind="type", pid="t4", src=A3, tin=4.00, tout=5.60, text="СМЕНИ КАНАЛ", size=108)
+seg(66.50, 67.50, kind="src", pid="p25a", src=A3, tin=5.60, tout=6.60, grade=C, osd="CH 03")
+seg(67.50, 69.10, kind="type", pid="t5", src=A1, tin=3.00, tout=4.60, text="НЕ ЖДИ ЗНАКА СВЫШЕ")
+seg(69.10, 70.50, kind="src", pid="p26a", src=A1, tin=4.60, tout=6.00, grade=C)
+seg(70.50, 72.10, kind="type", pid="t6", src=A2, tin=4.00, tout=5.60, text="ИНОГДА ДОСТАТОЧНО")
+seg(72.10, 73.50, kind="src", pid="p27a", src=A2, tin=5.60, tout=7.00, grade=C)
+seg(73.50, 75.10, kind="type", pid="t7", src=A1, tin=7.00, tout=8.60, text="СДЕЛАТЬ ШАГ ПОБЛИЖЕ")
+seg(75.10, 76.60, kind="src", pid="p28b", src=A1, tin=8.60, tout=10.10, grade=C,
+    extra="zoompan=z='1+0.18*on/45':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=1920x1080:fps=30")
 
 # ================= ПРОИГРЫШ: цветной сон (76.6-82.5) =================
 seg(76.60, 82.50, kind="src", pid="p29", src=A2, tin=0.00, tout=2.95, speed=S, grade=C)
@@ -103,7 +112,8 @@ seg(154.20, 155.80, kind="still", pid="s22", img=F(22), dur=1.60, z1=1.30)    # 
 seg(155.80, 156.50, kind="static", pid="ST3", dur=0.70, band_y=0.80)
 seg(156.50, 156.90, kind="static", pid="ST4", band_y=0.20)
 seg(156.90, 159.10, kind="src", pid="p47", src=A1, tin=1.00, tout=3.20, grade=C, osd="CH 01")
-seg(159.10, 161.70, kind="src", pid="p48", src=A2, tin=3.00, tout=5.60, grade=C)
+seg(159.10, 160.70, kind="type", pid="t8", src=A2, tin=3.00, tout=4.60, text="ВЗГЛЯНИ ИНАЧЕ")
+seg(160.70, 161.70, kind="src", pid="p48a", src=A2, tin=4.60, tout=5.60, grade=C)
 seg(161.70, 162.35, kind="src", pid="p49a", src=A3, tin=2.00, tout=2.65, grade=G)
 seg(162.35, 163.00, kind="src", pid="p49b", src=A3, tin=5.00, tout=5.65, grade=C)
 seg(163.00, 163.65, kind="src", pid="p49c", src=A1, tin=8.00, tout=8.65, grade=G)
@@ -111,9 +121,12 @@ seg(163.65, 164.30, kind="src", pid="p49d", src=A1, tin=9.35, tout=10.00, grade=
 seg(164.30, 168.20, kind="src", pid="p50", src=A2, tin=6.00, tout=9.90, grade=C)
 seg(168.20, 168.60, kind="static", pid="ST1", band_y=0.35)
 seg(168.60, 170.80, kind="still", pid="s23", img=F(23), dur=2.20, z1=1.30)     # ТА ЖЕ улица - в золоте
-seg(170.80, 173.40, kind="still", pid="s24", img=F(24), dur=2.60, z1=1.25)     # идёт к камере, без капюшона
-seg(173.40, 176.00, kind="src", pid="p54", src=A2, tin=1.00, tout=3.60, grade=C)
-seg(176.00, 178.50, kind="still", pid="s26", img=F(26), dur=2.50, z1=1.45, ydrift=0.3)  # бог-лучи
+seg(170.80, 172.40, kind="type", pid="t9", src=A1, tin=4.00, tout=5.60, text="ПУСТЬ МЕНЯЕТСЯ ЗВУК")
+seg(172.40, 173.40, kind="still", pid="s24b", img=F(24), dur=1.00, z1=1.28)     # идёт к камере, без капюшона
+seg(173.40, 175.00, kind="type", pid="t10", src=A2, tin=1.00, tout=2.60, text="ИНОГДА НОВЫЙ ВЗГЛЯД —")
+seg(175.00, 176.00, kind="src", pid="p54a", src=A2, tin=2.60, tout=3.60, grade=C)
+seg(176.00, 177.60, kind="type", pid="t11", src=A3, tin=8.69, tout=10.29, text="ЭТО ВЫХОД ИЗ КРУГА")
+seg(177.60, 178.50, kind="still", pid="s26b", img=F(26), dur=0.90, z1=1.42, ydrift=0.3)  # бог-лучи
 
 # ============ ФИНАЛ: полный круг (178.5-185.6) ============
 seg(178.50, 182.70, kind="dissolve", pid="m228", a=F(2), b=F(28), dur=4.20,
@@ -126,6 +139,33 @@ seg(185.60, 188.80, kind="text", pid="TITL", dur=3.20, fades=("0.40", "0.40"),
            ("ГРЯЗНЫЙ ГЕНА  ·  DIRTYGEN", 30, "(h-th)/2+120", "0xC8C8C8")])
 
 BURSTS = [(52.5, 0.30), (64.5, 0.30), (155.8, 0.34), (168.2, 0.20)]
+
+# ---------- ПАНЧ-АКЦЕНТЫ (кадры из frames_4k, 0.6-0.8с) ----------
+# Врезаются ВНУТРЬ видеокусков: кусок автоматически делится на части.
+# (время, длит., кадр, зум, грейд G/C, глитч). Расставлены по строкам песни,
+# кадры идут по арке тьма→свет в порядке трека. Читается как монтаж, не слайды.
+ACCENTS = [
+    (2.50, 0.70, "F01", "in",   "G", False),  # диалог 1
+    (6.50, 0.70, "F02", "panL", "G", False),
+    (10.50, 0.70, "F03", "in",  "G", False),
+    (14.50, 0.70, "F04", "panR", "G", False),
+    (22.10, 0.70, "F06", "panR", "G", False),
+    (25.80, 0.70, "F07", "in",  "G", False),
+    (29.50, 0.70, "F08", "panL", "G", False),
+    (33.20, 0.70, "F09", "in",  "G", False),
+    (36.90, 0.70, "F10", "panR", "G", False),
+    (40.60, 0.70, "F11", "in",  "G", False),
+    (44.40, 0.70, "F12", "out", "G", False),
+    (84.00, 0.70, "F19", "in",  "G", False),  # куплет 2: серое↔цветное
+    (89.00, 0.70, "F20", "panR", "C", False),
+    (93.50, 0.70, "F21", "in",  "G", False),
+    (98.00, 0.70, "F22", "panL", "C", False),
+    (102.50, 0.70, "F23", "in", "G", False),
+    (107.00, 0.70, "F24", "panR", "C", False),
+    (111.50, 0.70, "F25", "in", "G", False),
+    (120.50, 0.80, "F26", "in", "C", False),  # гэг «чистый лист»
+    (165.50, 0.80, "F27", "out", "C", True),  # глитч-панч в финальном припеве
+]
 
 # ---------- ЗАМЕНЫ НА AI-КАДРЫ (когда откроется квота видео-API) ----------
 SUBST = {
@@ -141,11 +181,92 @@ SUBST = {
     "p54":  ("Q06", 0.00, 2.60),  # лужа-отражение
 }
 
+# ---------- ВРЕЗКА АКЦЕНТОВ (автоделение кусков) ----------
+def _fa_kw(a_t, a_d, fid, zoom, gk, gl):
+    """Кусок-акцент как still (панч-кат с движением камеры)."""
+    n = int(fid[1:])
+    kw = dict(kind="still", t0=a_t, t1=a_t + a_d, pid="FA" + fid,
+              img=L.FR4(n) if callable(L.FR4) else L.FR4[n], dur=a_d,
+              grade=L.GRAY if gk == "G" else L.COLOR)
+    if zoom in ("panL", "panR"):
+        kw["pan"] = "lr" if zoom == "panL" else "rl"
+    elif zoom == "out":
+        kw["z0"], kw["z1"] = 1.30, 1.08
+    else:
+        kw["z1"] = 1.32
+    if gl:
+        kw["extra"] = "rgbashift=rh=-10:bh=10"
+    return kw
+
+def apply_accents():
+    """Врезает акценты в таймлайн: кусок делится на части по цепочке
+    «голова → акцент → хвост(→ акцент → ...)». Панорамы и куски с
+    extra/osd не трогаются (акцент в них пропускается)."""
+    global T
+    T2 = []
+    accs = sorted(ACCENTS, key=lambda a: a[0])
+    ai = 0
+    for kw in T:
+        pending = kw
+        while ai < len(accs) and accs[ai][0] < kw["t1"]:
+            a_t, a_d, fid, zoom, gk, gl = accs[ai]
+            if pending is None:
+                ai += 1
+                continue
+            k = pending["kind"]
+            ok = (k in ("src", "still") and not pending.get("extra")
+                  and not pending.get("osd") and not pending.get("pan")
+                  and a_t >= pending["t0"] + 0.4 and a_t + a_d <= pending["t1"] - 0.4)
+            if not ok:
+                ai += 1
+                continue
+            if k == "src":
+                S = 2.0 if pending.get("speed") else 1.0
+                d1 = a_t - pending["t0"]
+                if d1 > 0.45:
+                    kw1 = dict(pending); kw1["t1"] = a_t
+                    kw1["tin"] = pending["tin"]
+                    kw1["tout"] = pending["tin"] + d1 / S
+                    kw1["pid"] = pending["pid"] + "a"
+                    T2.append(kw1)
+                T2.append(_fa_kw(a_t, a_d, fid, zoom, gk, gl))
+                d2 = pending["t1"] - (a_t + a_d)
+                if d2 > 0.45:
+                    kw2 = dict(pending); kw2["t0"] = a_t + a_d
+                    kw2["tin"] = pending["tin"] + (a_t + a_d - pending["t0"]) / S
+                    kw2["pid"] = pending["pid"] + "b"
+                    pending = kw2
+                else:
+                    pending = None
+            else:  # still
+                z0 = pending.get("z0", 1.0); z1 = pending.get("z1", 1.25)
+                dur0 = pending["t1"] - pending["t0"]
+                d1 = a_t - pending["t0"]
+                if d1 > 0.45:
+                    kw1 = dict(pending); kw1["t1"] = a_t; kw1["dur"] = d1
+                    kw1["z1"] = z0 + (z1 - z0) * d1 / dur0
+                    kw1["pid"] = pending["pid"] + "a"
+                    T2.append(kw1)
+                T2.append(_fa_kw(a_t, a_d, fid, zoom, gk, gl))
+                d2 = pending["t1"] - (a_t + a_d)
+                if d2 > 0.45:
+                    kw2 = dict(pending); kw2["t0"] = a_t + a_d; kw2["dur"] = d2
+                    kw2["z0"] = z1
+                    kw2["pid"] = pending["pid"] + "b"
+                    pending = kw2
+                else:
+                    pending = None
+            ai += 1
+        if pending is not None:
+            T2.append(pending)
+    T = T2
+
 # ---------- ПРОВЕРКИ ----------
 def speed_factor(kw):
     return 2.0 if kw.get("speed") else 1.0
 
 def check():
+    apply_accents()
     errs = []
     if abs(T[0]["t0"]) > 1e-6:
         errs.append("таймлайн должен начинаться с 0")
@@ -168,6 +289,10 @@ def check():
         elif k == "dissolve":
             if abs(kw["dur"] - d) > 0.06:
                 errs.append(f"#{i} {kw.get('pid')}: dissolve {kw['dur']:.2f} != {d:.2f}")
+        elif k == "type":
+            need = kw["tout"] - kw["tin"]
+            if abs(need - d) > 0.06:
+                errs.append(f"#{i} {kw.get('pid')}: type {need:.2f} != слота {d:.2f}")
         elif k in ("static", "black", "text"):
             dur = kw.get("dur", 0.4)
             if abs(dur - d) > 0.06:
@@ -195,7 +320,8 @@ def render_all():
             f = L.render_still(kw["pid"], kw["img"], kw["dur"],
                                z0=kw.get("z0", 1.0), z1=kw.get("z1", 1.25),
                                pan=kw.get("pan", ""), ydrift=kw.get("ydrift", 0.0),
-                               extra=kw.get("extra", ""), fades=kw.get("fades", (0.0, 0.0)))
+                               extra=kw.get("extra", ""), fades=kw.get("fades", (0.0, 0.0)),
+                               grade=kw.get("grade"))
             if kw.get("osd"):
                 # OSD поверх готового куска (перезапись с суффиксом)
                 f2 = L.piece_path(kw["pid"] + "o")
@@ -214,6 +340,9 @@ def render_all():
         elif k == "dissolve":
             f = L.render_dissolve(kw["pid"], kw["a"], kw["b"], kw["dur"],
                                   crop=kw.get("crop", 1.0), fades=kw.get("fades", (0.0, 0.0)))
+        elif k == "type":
+            f = L.render_type(kw["pid"], kw["src"], kw["tin"], kw["tout"],
+                              kw["text"], size=kw.get("size", 100), osd=kw.get("osd", ""))
         elif k == "static":
             f = L.render_static(kw["pid"], dur=kw.get("dur", 0.4), band_y=kw.get("band_y", 0.5))
         elif k == "black":

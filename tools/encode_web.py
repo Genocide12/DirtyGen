@@ -20,7 +20,7 @@ V = ["-c:v", "libx264", "-profile:v", "high", "-level", "4.0",
      "-pix_fmt", "yuv420p", "-g", "60", "-keyint_min", "6",
      "-r", "30", "-fps_mode", "cfr", "-video_track_timescale", "15360"]
 
-dur = 188.867
+dur = 188.900
 total = int(round(dur * 30))
 CF = 900
 n = (total + CF - 1) // CF

@@ -36,6 +36,7 @@ else:
     FONTS["title"] = FONTS["bold"]
 
 AIV = {i: os.path.join(BASE, "aivideo", f"0{i}.mp4") for i in (1, 2, 3)}
+FR4 = {i: os.path.join(BASE, "frames_4k", f"{i:02d}.jpg") for i in range(1, 29)}
 GEN = lambda q: os.path.join(BASE, "aivideo", "film", f"{q}.mp4")
 
 # ---- грейды ----
@@ -102,6 +103,41 @@ def render_static(pid, dur=0.4, band_y=0.5, band_h=14):
     if r.returncode != 0:
         print(r.stderr[-1200:], file=sys.stderr)
         raise SystemExit(f"static {pid} failed")
+    return out
+
+
+def render_frame(pid, img, dur, grade="", zoom="in", osd="", glitch=False):
+    """Панч-кусок из стоп-кадра 4K: движение камеры + грейд + (глитч).
+    zoom: in (наезд), out (отъезд), panL/panR (панорама). Читается как склейка, не слайд."""
+    out = piece_path(pid)
+    if os.path.exists(out) and os.path.getsize(out) > 5000:
+        return out
+    frames = max(2, int(round(dur * 30)))
+    if zoom == "in":
+        zp = f"zoompan=z='1.10+0.14*on/{frames}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=1920x1080:fps=30"
+    elif zoom == "out":
+        zp = f"zoompan=z='1.26-0.16*on/{frames}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':d=1:s=1920x1080:fps=30"
+    elif zoom == "panL":
+        zp = f"zoompan=z='1.18':x='(iw-iw/zoom)*(1-on/{frames})':y='ih/2-(ih/zoom/2)':d=1:s=1920x1080:fps=30"
+    else:  # panR
+        zp = f"zoompan=z='1.18':x='(iw-iw/zoom)*on/{frames}':y='ih/2-(ih/zoom/2)':d=1:s=1920x1080:fps=30"
+    chain = ["fps=30", "settb=AVTB", zp]
+    if grade:
+        chain.append(grade)
+    if glitch:
+        chain.append("rgbashift=rh=-10:bh=10")
+    if osd:
+        chain.append(
+            f"drawtext=fontfile={FONTS['mono']}:text='{_esc(osd)}':"
+            "x=w-tw-46:y=40:fontsize=34:fontcolor=white@0.85:"
+            "shadowcolor=black@0.6:shadowx=2:shadowy=2")
+    chain.append("format=yuv420p")
+    cmd = ["ffmpeg", "-y", "-v", "error", "-loop", "1", "-framerate", "30",
+           "-t", f"{dur:.3f}", "-i", img, "-an", "-vf", ",".join(chain)] + X264 + [out]
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if r.returncode != 0:
+        print(r.stderr[-1200:], file=sys.stderr)
+        raise SystemExit(f"frame {pid} failed")
     return out
 
 
@@ -183,7 +219,7 @@ FR4 = lambda n: os.path.join(BASE, "frames_4k", f"{n:02d}.jpg")
 
 
 def render_still(pid, img, dur, z0=1.0, z1=1.25, pan="", ydrift=0.0,
-                 extra="", fades=(0.0, 0.0)):
+                 extra="", fades=(0.0, 0.0), grade=None):
     """Кусок из стоп-кадра 4K: наезд/панорама (zoompan), зерно.
     pan: '' центр, 'lr' слева направо, 'rl' справа налево.
     ydrift>0: камера всплывает (для кадров 'вверх к свету').
@@ -213,7 +249,7 @@ def render_still(pid, img, dur, z0=1.0, z1=1.25, pan="", ydrift=0.0,
     chain = [
         "scale=3840:2160",
         f"zoompan=z='{zexpr}':x='{x}':y='{y}':d=1:s=1920x1080:fps=30",
-        STILL_GRADE,
+        grade if grade is not None else STILL_GRADE,
     ]
     if extra:
         chain.append(extra)
@@ -230,6 +266,32 @@ def render_still(pid, img, dur, z0=1.0, z1=1.25, pan="", ydrift=0.0,
     if r.returncode != 0:
         print(r.stderr[-1500:], file=sys.stderr)
         raise SystemExit(f"still {pid} failed")
+    return out
+
+
+def render_type(pid, src, tin, tout, text, size=100, osd=""):
+    """СЛОВО ПОВЕРХ ЖИВОГО ГОРОДА: затемнённый цветной кадр + крупный текст.
+    Кинетическая типографика припевов — хук песни как визуальный ряд."""
+    out = piece_path(pid)
+    if os.path.exists(out) and os.path.getsize(out) > 5000:
+        return out
+    chain = ["fps=30", "settb=AVTB", f"trim=start={tin}:end={tout}",
+             "setpts=PTS-STARTPTS", COLOR,
+             "eq=brightness=-0.17:contrast=1.02",
+             f"drawtext=fontfile={FONTS['title']}:text='{_esc(text)}':"
+             "x=(w-tw)/2:y=(h-th)/2:fontsize=%d:fontcolor=white:"
+             "shadowcolor=black@0.75:shadowx=4:shadowy=4" % int(size)]
+    if osd:
+        chain.append(
+            f"drawtext=fontfile={FONTS['mono']}:text='{_esc(osd)}':"
+            "x=w-tw-46:y=40:fontsize=34:fontcolor=white@0.85:"
+            "shadowcolor=black@0.6:shadowx=2:shadowy=2")
+    chain.append("format=yuv420p")
+    cmd = ["ffmpeg", "-y", "-v", "error", "-i", src, "-an", "-vf", ",".join(chain)] + X264 + [out]
+    r = subprocess.run(cmd, capture_output=True, text=True)
+    if r.returncode != 0:
+        print(r.stderr[-1200:], file=sys.stderr)
+        raise SystemExit(f"type {pid} failed")
     return out
 
 
