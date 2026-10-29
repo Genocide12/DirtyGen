@@ -1,34 +1,45 @@
-/* DIRTYGEN·ТВ — channel switcher logic */
+/* DIRTYGEN — переключение каналов */
 (function () {
   "use strict";
 
   const CHANNELS = [
-    { num: "CH 01", name: "Я НЕ В СЕТИ", file: "video/ch1_main.mp4" },
-    { num: "CH 02", name: "Я НЕ В СЕТИ · NIGHT", file: "video/ch2_night.mp4" },
-    { num: "CH 03", name: "Я НЕ В СЕТИ · DAWN", file: "video/ch3_dawn.mp4" },
-    { num: "CH 04", name: "DIRTYGEN", file: null },
+    { num: "CH 01", name: "СМЕНИ КАНАЛ", file: "video/ch1_main.mp4" },
+    { num: "CH 02", name: "СМЕНИ КАНАЛ · NIGHT", file: "video/ch2_night.mp4" },
+    { num: "CH 03", name: "СМЕНИ КАНАЛ · DAWN", file: "video/ch3_dawn.mp4" },
+    { num: "", name: "ГРЯЗНЫЙ ГЕНА", file: null },
   ];
+  const ARTIST = 3; // индекс страницы артиста
 
   const $ = (s) => document.querySelector(s);
-  const power = $("#power"), tv = $("#tv");
+  const power = $("#power");
   const sections = document.querySelectorAll(".channel");
   const videos = document.querySelectorAll(".channel video");
   const staticCv = $("#static");
-  const osdCh = $("#osdCh"), osdTitle = $("#osdTitle"), osdTime = $("#osdTime");
-  const osdBottom = $("#osdBottom"), osdHint = $("#osdHint");
+  const osdCh = $("#osdCh"), osdBrand = $("#osdBrand");
+  const chMenu = $("#chMenu");
   const splash = $("#chSplash"), splashNum = $("#splashNum"), splashName = $("#splashName");
-  const progress = $("#progress"), progressFill = $("#progressFill"), progressHead = $("#progressHead");
-  const soundChip = $("#soundChip"), endCard = $("#endCard");
+  const endCard = $("#endCard");
 
   let cur = -1;
   let powered = false;
-  let muted = false;
   let lastSwitch = 0;
   let audioCtx = null;
+  let soundRetry = false;
 
-  /* ---------- static flash ---------- */
-  const SW = 260, SH = 146;
-  staticCv.width = SW; staticCv.height = SH;
+  /* ---------- вспышка помех: буфер под пропорции экрана ---------- */
+  /* одинаковые квадратные зёрна шума на любом экране (телефон/десктоп) */
+  function staticSize() {
+    const w = 240;
+    const h = Math.max(120, Math.round((w * window.innerHeight) / Math.max(1, window.innerWidth)));
+    staticCv.width = w;
+    staticCv.height = h;
+    return [w, h];
+  }
+  let SW = 0, SH = 0;
+  function resizeStatic() { [SW, SH] = staticSize(); }
+  resizeStatic();
+  window.addEventListener("resize", resizeStatic);
+  window.addEventListener("orientationchange", resizeStatic);
   const sctx = staticCv.getContext("2d");
 
   function noiseBurst(dur) {
@@ -45,7 +56,8 @@
     } catch (e) { /* noop */ }
   }
 
-  function staticFlash(dur = 420) {
+  function staticFlash(dur) {
+    if (dur == null) dur = 420;
     const t0 = performance.now();
     staticCv.style.opacity = "1";
     noiseBurst(dur / 1000);
@@ -59,17 +71,16 @@
         d[i] = v; d[i + 1] = v; d[i + 2] = v; d[i + 3] = 255;
       }
       sctx.putImageData(img, 0, 0);
-      // displacement bands
+      // полосы сдвига — пропорциональны высоте буфера
       const bands = 4;
       for (let b = 0; b < bands; b++) {
         const y = (Math.random() * SH) | 0;
-        const h = 4 + (Math.random() * 22) | 0;
-        const dx = ((Math.random() - 0.5) * 46) | 0;
+        const h = Math.max(2, Math.round(SH * (0.02 + Math.random() * 0.1)));
+        const dx = ((Math.random() - 0.5) * SW * 0.18) | 0;
         if (dx === 0) continue;
         const strip = sctx.getImageData(0, y, SW, Math.min(h, SH - y));
         sctx.putImageData(strip, dx, y);
       }
-      // occasional bright tear
       if (Math.random() < 0.3) {
         sctx.fillStyle = "rgba(255,255,255," + (0.06 + Math.random() * 0.1) + ")";
         sctx.fillRect(0, Math.random() * SH, SW, 1 + Math.random() * 2);
@@ -78,15 +89,15 @@
     })();
   }
 
-  /* ---------- channel control ---------- */
-  function fmt(s) {
-    if (!isFinite(s)) return "0:00";
-    s = Math.max(0, s | 0);
-    return ((s / 60) | 0) + ":" + String(s % 60).padStart(2, "0");
+  /* ---------- переключение каналов ---------- */
+  function label(i) {
+    return CHANNELS[i].num ? CHANNELS[i].num + " / 03" : CHANNELS[i].name;
   }
 
   function showSplash(i) {
-    splashNum.textContent = CHANNELS[i].num;
+    const hasNum = !!CHANNELS[i].num;
+    splashNum.textContent = hasNum ? CHANNELS[i].num : "";
+    splashNum.style.display = hasNum ? "" : "none";
     splashName.textContent = CHANNELS[i].name;
     splash.classList.remove("show");
     void splash.offsetWidth; // reflow
@@ -103,12 +114,9 @@
     sections.forEach((s, k) => s.classList.toggle("active", k === cur));
 
     const isVideo = !!CHANNELS[cur].file;
-    osdBottom.classList.toggle("hidden", !isVideo);
-    osdCh.textContent = CHANNELS[cur].num + " / 04";
-    osdTitle.textContent = CHANNELS[cur].name;
-    osdHint.style.display = isVideo ? "" : "none";
+    osdCh.textContent = label(cur);
     endCard.classList.remove("show");
-    if (!isVideo) { osdTime.textContent = ""; }
+    closeMenu();
 
     if (!silent) staticFlash();
     showSplash(cur);
@@ -116,14 +124,10 @@
     if (isVideo) {
       const v = videos[cur];
       v.preload = "auto";
-      v.muted = muted;
+      v.muted = false; // звук всегда включён
       const p = v.play();
-      if (p) p.catch(() => {
-        v.muted = true; muted = true;
-        soundChip.classList.add("show");
-        v.play().catch(() => {});
-      });
-      // warm next video channel
+      if (p && p.catch) p.catch(() => { soundRetry = true; });
+      // прогреваем следующий канал
       const nxt = (cur + 1) % CHANNELS.length;
       if (CHANNELS[nxt].file) videos[nxt].preload = "auto";
     }
@@ -132,7 +136,22 @@
   function next() { switchTo(cur + 1); }
   function prev() { switchTo(cur - 1); }
 
-  /* ---------- power on ---------- */
+  /* ---------- тихий ретрай звука (без интерфейса) ---------- */
+  function retrySound() {
+    if (!soundRetry || !powered) return;
+    const v = videos[cur];
+    if (!v || !CHANNELS[cur].file) return;
+    v.muted = false;
+    const p = v.play();
+    if (p && p.catch) {
+      p.then(() => { soundRetry = false; }).catch(() => {});
+    }
+  }
+  ["click", "touchstart", "keydown"].forEach((ev) =>
+    window.addEventListener(ev, retrySound, { passive: true })
+  );
+
+  /* ---------- запуск ---------- */
   function powerOn() {
     if (powered) return;
     powered = true;
@@ -142,49 +161,60 @@
     } catch (e) { /* noop */ }
     power.classList.add("off");
     document.body.classList.add("on");
+    // разблокировка звука синхронно в жесте клика (autoplay policy)
+    const v0 = videos[0];
+    v0.muted = false;
+    const p0 = v0.play();
+    if (p0 && p0.catch) p0.catch(() => { soundRetry = true; });
     staticFlash(650);
     setTimeout(() => switchTo(0, true), 260);
     setTimeout(() => { power.style.display = "none"; }, 500);
   }
   power.addEventListener("click", powerOn);
 
-  /* ---------- video events ---------- */
+  /* ---------- события видео ---------- */
   videos.forEach((v) => {
-    v.addEventListener("timeupdate", () => {
-      if (sections[cur].querySelector("video") !== v) return;
-      if (v.duration) {
-        const p = (v.currentTime / v.duration) * 100;
-        progressFill.style.width = p + "%";
-        progressHead.style.left = p + "%";
-        osdTime.textContent = fmt(v.currentTime) + " / " + fmt(v.duration);
-      }
-    });
     v.addEventListener("ended", () => {
       if (sections[cur].querySelector("video") !== v) return;
       endCard.classList.add("show");
     });
-    v.addEventListener("click", () => {
-      if (sections[cur].querySelector("video") !== v) return;
-      if (v.paused) { v.play(); endCard.classList.remove("show"); }
-      else v.pause();
+  });
+
+  /* ---------- меню страниц (выпадающий список) ---------- */
+  function buildMenu() {
+    chMenu.innerHTML = "";
+    CHANNELS.forEach((c, i) => {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "menu-item" + (i === cur ? " cur" : "");
+      const numHtml = c.num
+        ? "<span class='mi-num'>" + c.num + "</span>"
+        : "<span class='mi-num star'>★</span>";
+      b.innerHTML = numHtml + "<span class='mi-name'>" + c.name + "</span>";
+      b.addEventListener("click", (e) => {
+        e.stopPropagation();
+        switchTo(i);
+      });
+      chMenu.appendChild(b);
     });
+  }
+  function openMenu() { buildMenu(); chMenu.classList.add("open"); }
+  function closeMenu() { chMenu.classList.remove("open"); }
+
+  osdCh.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (chMenu.classList.contains("open")) closeMenu(); else openMenu();
+  });
+  document.addEventListener("click", (e) => {
+    if (!chMenu.contains(e.target)) closeMenu();
   });
 
-  progress.addEventListener("click", (e) => {
-    const v = videos[cur];
-    if (!v || !v.duration) return;
-    const r = progress.getBoundingClientRect();
-    v.currentTime = ((e.clientX - r.left) / r.width) * v.duration;
+  /* ---------- клик по бренду -> страница артиста ---------- */
+  osdBrand.addEventListener("click", () => {
+    if (powered) switchTo(ARTIST);
   });
 
-  /* ---------- sound chip ---------- */
-  soundChip.addEventListener("click", () => {
-    muted = false;
-    videos.forEach((v) => (v.muted = false));
-    soundChip.classList.remove("show");
-  });
-
-  /* ---------- input: wheel ---------- */
+  /* ---------- ввод: колесо ---------- */
   window.addEventListener(
     "wheel",
     (e) => {
@@ -198,13 +228,14 @@
     { passive: true }
   );
 
-  /* ---------- input: touch ---------- */
+  /* ---------- ввод: свайп ---------- */
   let tx = 0, ty = 0, tt = 0;
   window.addEventListener("touchstart", (e) => {
     tx = e.touches[0].clientX; ty = e.touches[0].clientY; tt = performance.now();
   }, { passive: true });
   window.addEventListener("touchend", (e) => {
     if (!powered) return;
+    if (chMenu.classList.contains("open")) return;
     const dx = e.changedTouches[0].clientX - tx;
     const dy = e.changedTouches[0].clientY - ty;
     const dt = performance.now() - tt;
@@ -217,7 +248,7 @@
     (forward ? next : prev)();
   }, { passive: true });
 
-  /* ---------- input: keyboard ---------- */
+  /* ---------- ввод: клавиатура ---------- */
   window.addEventListener("keydown", (e) => {
     if (!powered) {
       powerOn();
@@ -228,45 +259,20 @@
         e.preventDefault(); next(); break;
       case "ArrowUp": case "ArrowLeft": case "PageUp": case "KeyA":
         e.preventDefault(); prev(); break;
-      case "Space":
-        e.preventDefault();
-        { const v = videos[cur];
-          if (v) { v.paused ? v.play() : v.pause(); } }
-        break;
-      case "KeyM": {
-        muted = !muted;
-        videos.forEach((v) => (v.muted = muted));
-        soundChip.classList.toggle("show", muted);
-        break;
-      }
-      case "KeyF":
-        if (document.fullscreenElement) document.exitFullscreen();
-        else document.documentElement.requestFullscreen().catch(() => {});
-        break;
-      case "Digit1": case "Digit2": case "Digit3": case "Digit4":
-        switchTo(+e.code.slice(-1) - 1);
-        break;
+      case "Digit1": case "Digit2": case "Digit3":
+        switchTo(+e.code.slice(-1) - 1); break;
+      case "Digit0":
+        switchTo(ARTIST); break;
     }
   });
 
-  /* ---------- nosignal links ---------- */
-  document.querySelectorAll("a.nosignal").forEach((a) => {
-    a.addEventListener("click", (e) => {
-      e.preventDefault();
-      staticFlash(500);
-      const old = a.textContent;
-      a.textContent = "НЕТ СИГНАЛА";
-      setTimeout(() => (a.textContent = a.dataset.name), 1400);
-    });
-  });
-
-  /* ---------- auto-hide chrome ---------- */
+  /* ---------- автоскрытие шапки ---------- */
   let hideTimer;
   function pokeChrome() {
     document.body.classList.remove("idle");
     clearTimeout(hideTimer);
     hideTimer = setTimeout(() => {
-      if (powered) document.body.classList.add("idle");
+      if (powered && !chMenu.classList.contains("open")) document.body.classList.add("idle");
     }, 3500);
   }
   window.addEventListener("mousemove", pokeChrome);

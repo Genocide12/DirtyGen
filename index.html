@@ -2,11 +2,11 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>DIRTYGEN·ТВ — Я НЕ В СЕТИ</title>
-<meta name="description" content="Смени канал — смени взгляд. DIRTYGEN «Я не в сети» — клип на трёх частотах.">
-<meta property="og:title" content="DIRTYGEN — Я НЕ В СЕТИ">
-<meta property="og:description" content="Смени канал — смени взгляд.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>DIRTYGEN — Смени канал</title>
+<meta name="description" content="Смени канал — смени взгляд. Грязный Гена (DIRTYGEN) — клип «Смени канал» на трёх частотах.">
+<meta property="og:title" content="DIRTYGEN — Смени канал">
+<meta property="og:description" content="Грязный Гена · клип «Смени канал» — три версии на трёх каналах.">
 <meta property="og:image" content="assets/img/og.png">
 <meta property="og:type" content="website">
 <link rel="icon" href="assets/img/og.png">
@@ -17,20 +17,21 @@
 </head>
 <body>
 
-<!-- Standby / power screen -->
+<!-- Стартовый экран -->
 <div id="power">
   <div class="power-inner">
-    <div class="power-brand">DIRTYGEN<span>·ТВ</span></div>
+    <div class="power-brand">DIRTYGEN</div>
     <div class="power-dot"></div>
-    <div class="power-hint">нажми, чтобы включить</div>
+    <div class="power-hint">нажми, чтобы смотреть</div>
+    <div class="power-sub">свайп · колесо · ← → — каналы</div>
   </div>
 </div>
 
-<!-- TV static flash overlay -->
+<!-- Вспышка помех при смене канала -->
 <canvas id="static"></canvas>
 
-<!-- Channels -->
-<main id="tv">
+<!-- Каналы -->
+<main id="stage">
 
   <section class="channel" data-ch="0">
     <video src="video/ch1_main.mp4" preload="auto" playsinline></video>
@@ -50,41 +51,33 @@
   <section class="channel artist" data-ch="3">
     <div class="vign"></div>
     <div class="artist-inner">
-      <div class="artist-tag">CH 04 · ИСПОЛНИТЕЛЬ</div>
-      <h1 class="glitch" data-text="DIRTYGEN">DIRTYGEN</h1>
+      <div class="artist-tag">DIRTYGEN · АРТИСТ</div>
+      <h1 class="glitch" data-text="ГРЯЗНЫЙ ГЕНА">ГРЯЗНЫЙ ГЕНА</h1>
       <div class="quote">«Смени канал — смени взгляд»</div>
       <nav class="links">
+        <a href="https://www.youtube.com/@igra_knyazey" target="_blank" rel="noopener">YOUTUBE&nbsp;↗</a>
+        <a href="https://t.me/graygendalf" target="_blank" rel="noopener">TELEGRAM&nbsp;↗</a>
         <a href="https://github.com/Genocide12/DirtyGen" target="_blank" rel="noopener">GITHUB&nbsp;↗</a>
-        <a href="#" class="nosignal" data-name="YOUTUBE">YOUTUBE</a>
-        <a href="#" class="nosignal" data-name="TELEGRAM">TELEGRAM</a>
       </nav>
-      <div class="copy">© DIRTYGEN · «Я НЕ В СЕТИ»</div>
+      <div class="copy">© ГРЯЗНЫЙ ГЕНА · трек «СМЕНИ КАНАЛ»</div>
     </div>
   </section>
 
 </main>
 
-<!-- OSD chrome -->
+<!-- Шапка -->
 <header id="osdTop">
-  <div class="osd-brand">DIRTYGEN·ТВ</div>
-  <div class="osd-ch" id="osdCh">CH 01</div>
+  <div class="osd-brand" id="osdBrand" title="Грязный Гена">DIRTYGEN</div>
+  <div class="osd-ch" id="osdCh" title="Все страницы">CH 01 / 03</div>
 </header>
 
-<div id="chSplash"><span id="splashNum">CH 01</span><span id="splashName">Я НЕ В СЕТИ</span></div>
+<div id="chMenu"></div>
 
-<footer id="osdBottom">
-  <div id="progress"><div id="progressFill"></div><div id="progressHead"></div></div>
-  <div class="osd-row">
-    <span id="osdTitle">Я НЕ В СЕТИ</span>
-    <span class="osd-hint" id="osdHint">колесо&nbsp;/&nbsp;свайп — канал&nbsp;·&nbsp;SPACE — пауза&nbsp;·&nbsp;M — звук&nbsp;·&nbsp;F — во&nbsp;весь&nbsp;экран</span>
-    <span id="osdTime">0:00 / 0:00</span>
-  </div>
-</footer>
+<div id="chSplash"><span id="splashNum">CH 01</span><span id="splashName">СМЕНИ КАНАЛ</span></div>
 
-<div id="soundChip">🔇 нажми — включить звук</div>
-<div id="endCard"><span>SWIPE →</span></div>
+<div id="endCard"><span>СВАЙП&nbsp;→</span></div>
 
-<!-- CRT ambience -->
+<!-- CRT-атмосфера -->
 <div id="crt"></div>
 
 <script src="assets/js/app.js"></script>
