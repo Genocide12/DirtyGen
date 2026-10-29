@@ -128,6 +128,21 @@ seg(185.60, 188.80, kind="text", pid="TITL", dur=3.20, fades=("0.40", "0.40"),
 
 BURSTS = [(52.5, 0.30), (64.5, 0.30), (155.8, 0.34), (168.2, 0.20)]
 
+# ---------- ЗАМЕНЫ НА AI-КАДРЫ (v2-обогащение) ----------
+# Если aivideo/film/Q##.mp4 существует — кусок берётся из него вместо aivideo.
+# pid: (Q-файл, tin, tout). Длительности подобраны под слоты (slow ×2).
+# Файл куска получает суффикс q (p02q) — рядом со старым p02, кэш не конфликтует.
+SUBST = {
+    "p02": ("Q01", 0.00, 4.10),  # пролог: ходьба по серому городу
+    "p03": ("Q02", 0.00, 3.95),  # диалог: усталый взгляд
+    "p11": ("Q09", 0.00, 2.00),  # «признать без прикрас» — ракурс к небу
+    "p38": ("Q12", 0.00, 2.75),  # гэг «обои на телефоне»
+    "p40": ("Q03", 0.00, 3.00),  # автобусная остановка, разочарование
+    "p42": ("Q11", 7.00, 9.85),  # бридж: перекрёсток — место выбора
+    "p44": ("Q13", 0.00, 1.60),  # порог двери с тёплым светом
+    "p56": ("Q14", 6.00, 8.10),  # финал: выход в рассвет
+}
+
 # ---------- ПРОВЕРКИ ----------
 def speed_factor(kw):
     return 2.0 if kw.get("speed") else 1.0
@@ -158,11 +173,17 @@ def check():
 
 # ---------- РЕНДЕР ----------
 def render_all():
+    import os as _os
     files = []
     for kw in T:
         k = kw["kind"]
         if k == "src":
-            f = L.render_piece(kw["pid"], kw["src"], kw["tin"], kw["tout"],
+            src, tin, tout, sfx = kw["src"], kw["tin"], kw["tout"], ""
+            sub = SUBST.get(kw["pid"])
+            if sub and _os.path.exists(L.GEN(sub[0])) and _os.path.getsize(L.GEN(sub[0])) > 50000:
+                src, tin, tout = L.GEN(sub[0]), sub[1], sub[2]
+                sfx = "q"
+            f = L.render_piece(kw["pid"] + sfx, src, tin, tout,
                                grade=kw.get("grade", ""), speed=kw.get("speed", ""),
                                extra=kw.get("extra", ""), osd=kw.get("osd", ""))
         elif k == "static":
@@ -190,6 +211,11 @@ def main():
         for f in files:
             fp.write(f"file '{f}'\n")
     cat = os.path.join(BUILD, "film_cat.mp4")
+    # инвалидация: любой кусок новее сборки → пересобрать
+    if os.path.exists(cat):
+        newest = max(os.path.getmtime(f) for f in files)
+        if os.path.getmtime(cat) < newest - 2:
+            os.remove(cat)
     if not (os.path.exists(cat) and os.path.getsize(cat) > 1000000):
         r = subprocess.run(["ffmpeg", "-y", "-v", "error", "-f", "concat", "-safe", "0",
                             "-i", lst, "-c", "copy", cat], capture_output=True, text=True)
