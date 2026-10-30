@@ -24,3 +24,8 @@
 
 ## Не трогать
 `video/ch2_night.mp4`, `video/ch3_dawn.mp4`, `index.html`, `assets/js/app.js`, `assets/css/`.
+
+## План v5 (ch2_night + ch3_dawn) — записка от юзера
+- Промпты ДЛИННЫЕ: 2–3 последовательных действия в одном кадре + свет/текстуры/движение камеры (пример: "approaches → looks around → turns into alley, neon reflections, slow dolly").
+- Длительность: если API разрешит >10с — брать максимум.
+- Если модель разваливается на мульти-экшене — откат на одно действие для этого кадра.
