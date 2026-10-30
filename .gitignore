@@ -3,3 +3,4 @@
 aivideo/.json_*
 .build_film/
 node_modules
+.build_v2/
