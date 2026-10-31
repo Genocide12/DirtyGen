@@ -141,10 +141,14 @@
     lastSwitch = performance.now();
     userPaused = false; // сменили канал — снова хотим играть
     hidePauseBadge();
-    const prevVideo = videos[cur];
-    if (prevVideo && !prevVideo.paused) { prevVideo.pause(); }
-
+    playToken++; // гасим ВСЕ висящие ретраи play — ушедший канал не должен ожить
     cur = i;
+    // Инвариант: звук только у текущей страницы. Глушим ВСЕ видео, кроме
+    // текущего (уход со страницы артиста раньше вообще никого не паузил,
+    // и «оживший» канал играл под новым — наложение треков).
+    const v = videos[cur];
+    videos.forEach((el) => { if (el !== v) el.pause(); });
+
     sections.forEach((s, k) => s.classList.toggle("active", k === cur));
 
     const isVideo = !!CHANNELS[cur].file;
@@ -156,14 +160,9 @@
     showSplash(cur);
 
     if (isVideo) {
-      const v = videos[cur];
       v.preload = "auto";
       if (v.ended) { v.currentTime = 0; } // возврат на канал — с начала
       startVideo(v);
-      // прогреваем все видео-каналы
-      for (let k = 0; k < CHANNELS.length; k++) {
-        if (CHANNELS[k].file) videos[k].preload = "auto";
-      }
     }
   }
 
@@ -198,36 +197,14 @@
     } catch (e) { /* noop */ }
     power.classList.add("off");
     document.body.classList.add("on");
-    // разблокировка звука синхронно в жесте клика (autoplay policy)
+    // Первый звук — синхронно в жесте клика. Клика по кнопке питания
+    // достаточно: в Chrome/Firefox он легализует автозвук для всего
+    // документа, в Safari тап/свайп/стрелки при переключении — тоже жест.
+    // Никаких «тихих анлоков» остальных каналов: раньше они играли
+    // одновременно с первым и давали наложение треков + тройную загрузку.
     const v0 = videos[0];
     v0.muted = false;
     startVideo(v0);
-    // тихий анлок остальных каналов В ТОМ ЖЕ ЖЕСТЕ: unmuted play при
-    // volume=0 «благословляет» элемент — после этого звук разрешён и вне
-    // жеста (переключение колесом/стрелками). iOS volume не меняет
-    // (остаётся 1) — там пропускаем: свайп/клик сам является жестом.
-    for (let k = 1; k < CHANNELS.length; k++) {
-      if (!CHANNELS[k].file) continue;
-      const u = videos[k];
-      try {
-        u.volume = 0;
-        if (u.volume !== 0) continue; // iOS: тихий анлок недоступен
-        u.muted = false;
-        const p = u.play();
-        if (p && p.then) {
-          p.then(() => {
-            if (videos[cur] !== u) { u.pause(); try { u.currentTime = 0; } catch (e) {} }
-            try { u.volume = 1; } catch (e) {}
-          }).catch(() => { try { u.volume = 1; } catch (e) {} });
-        } else {
-          u.pause(); try { u.volume = 1; } catch (e) {}
-        }
-      } catch (e) { /* noop */ }
-    }
-    // прогреваем все каналы для мобильных
-    for (let k = 0; k < CHANNELS.length; k++) {
-      if (CHANNELS[k].file) videos[k].preload = "auto";
-    }
     staticFlash(650);
     setTimeout(() => switchTo(0, true), 260);
     setTimeout(() => { power.style.display = "none"; }, 500);
@@ -248,6 +225,19 @@
         if (v.paused) startVideo(v);
       })
     );
+  });
+
+  /* прогрев остальных каналов — только когда текущий уже поехал:
+     не отбираем канал у первого клипа в самый ответственный момент */
+  let warmed = false;
+  videos.forEach((v) => {
+    v.addEventListener("playing", () => {
+      if (warmed) return;
+      warmed = true;
+      for (let k = 0; k < CHANNELS.length; k++) {
+        if (CHANNELS[k].file) videos[k].preload = "auto";
+      }
+    });
   });
 
   /* сторож: канал открыт и не на паузе — клип должен идти */
