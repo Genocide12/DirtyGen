@@ -143,7 +143,8 @@ async function main() {
             console.log(p.s.id, 'DOWNLOADED', fs.statSync(f).size, `(${count()}/${TOTAL})`, new Date().toISOString()); made++;
           } else { console.log(p.s.id, 'download problem — таск сброшен'); delete state[p.s.id + ':task']; save(); queue.unshift(p.s); }
         } else if (r.task_status === 'FAIL' || r.task_status === 'FAILED') {
-          console.log(p.s.id, 'TASK FAILED — в очередь'); delete state[p.s.id + ':task']; save(); queue.push(p.s);
+          console.log(p.s.id, 'TASK FAILED — в очередь, сырой ответ:', JSON.stringify(r).slice(0, 500));
+          delete state[p.s.id + ':task']; save(); queue.push(p.s);
         } else { still.push(p); }
       } catch (e) {
         console.log(p.s.id, 'poll err:', String(e.message || e).slice(0, 80));
