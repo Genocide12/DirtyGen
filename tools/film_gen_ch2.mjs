@@ -73,8 +73,10 @@ async function dl(url, file) {
 }
 
 // create с фолбэком длительности: 400 «不支持当前duration值» -> 10с
+// (глобальный флаг: если 12с отвергнуто хотя бы раз — все следующие кадры сразу на 10с)
 async function createShot(s) {
   let dur = state[s.id + ':dur'] || s.dur;
+  if (state['dur_max_invalid'] && dur > DUR_MIN) dur = DUR_MIN;
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
       const task = await zai.video.generations.create({
@@ -86,8 +88,8 @@ async function createShot(s) {
     } catch (e) {
       const msg = String(e.message || e);
       if (/1214|duration/i.test(msg) && dur !== DUR_MIN) {
-        console.log(s.id, `dur=${dur} не поддержан — фолбэк на ${DUR_MIN}`);
-        dur = DUR_MIN; state[s.id + ':dur'] = dur; save();
+        console.log(s.id, `dur=${dur} не поддержан — фолбэк на ${DUR_MIN} (глобально)`);
+        dur = DUR_MIN; state[s.id + ':dur'] = dur; state['dur_max_invalid'] = true; save();
         continue;
       }
       throw e;
