@@ -27,6 +27,12 @@ push_partial() {
 
 # Фаза A: генерация N-кадров
 log "PHASE A start: have $(have)/$TOTAL"
+# самовосстановление SDK: node_modules не в git и умирает при откате диска
+if [ ! -d node_modules/z-ai-web-dev-sdk ]; then
+  log "node_modules нет (откат диска?) — ставлю z-ai-web-dev-sdk"
+  timeout 240 npm install z-ai-web-dev-sdk --no-audit --no-fund >/dev/null 2>&1 \
+    || log "npm install FAILED — проверь сеть/квоту"
+fi
 for i in $(seq 1 120); do
   n=$(have)
   if [ "$n" -ge "$TOTAL" ]; then log "ALL $n/$TOTAL DOWNLOADED"; break; fi
