@@ -1,4 +1,7 @@
 {
  "S01:dur": 10,
- "dur_max_invalid": true
+ "dur_max_invalid": true,
+ "S01:task": "20261101012016e8d6b7310d2b4d5a",
+ "S02:dur": 10,
+ "S02:task": "20261101013008eb2f8b3b09bc4789"
 }
