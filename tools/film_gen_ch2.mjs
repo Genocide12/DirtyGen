@@ -1,11 +1,14 @@
-// Генератор AI-кадров CH 02 «Смени канал» · NIGHT (v5).
-// 16 ночных кадров N01-N16, длинные мульти-экшен промпты (2-3 действия
-// в одном кадре + свет/текстуры/движение камеры) — по записке юзера для v5.
+// Генератор AI-кадров CH 02 «Смени канал» (v5, план Б: режиссёрский монтажный лист юзера).
+// 25 кадров S01-S25 = 14 сцен монтажного листа (03:34 / 214с), сцены длиннее 10с
+// разбиты на 2-3 кадра по экшен-битам (лимит API 10с/кадр).
+// Герой во всех промптах: 33-летний восточноевропеец, короткие тёмные волосы,
+// лёгкая щетина, простое чёрное шерстяное пальто поверх тёмного худи —
+// одинаковое описание в каждом промпте для консистентности персонажа.
 // Проба длительности встроена: пробуем 12с, при 400 «不支持当前duration值»
 // автоматически пересоздаём с 10с (максимум, который API точно принимает).
 // Состояние: aivideo/film_ch2/gen_state.json (НЕ в .gitignore — уходит на
 // GitHub частичными коммитами как страховка от откатов диска).
-// Запуск: node tools/film_gen_ch2.mjs [budget_seconds] [max_concurrency]
+// Запуск: node tools/film_gen_ch2.mjs [budget_seconds] [ax_concurrency]
 
 import ZAI from 'z-ai-web-dev-sdk';
 import fs from 'fs';
@@ -20,34 +23,47 @@ fs.mkdirSync(OUT_DIR, { recursive: true });
 const DUR_MAX = 12;   // пробуем максимум; фолбэк на 10 при 400
 const DUR_MIN = 10;
 
+const HERO = 'A 33-year-old Eastern European man with short dark hair, light stubble, wearing a simple black wool coat over a dark hoodie';
+
 const SHOTS = [
-  // ---- ПРОЛОГ: ночь опускается (0-16) ----
-  { id: 'N01', dur: DUR_MAX, prompt: 'Cinematic night aerial over a big city, camera drifting slowly above rooftops, light rain begins to fall and neon reflections bloom across wet streets below, deep blue night palette with scattered neon accents, atmospheric haze, anamorphic lens flare, 35mm film look, music video style, no text, no watermark' },
-  { id: 'N02', dur: DUR_MAX, prompt: 'Cinematic night street, lonely young man in a hoodie walking along an empty sidewalk, he passes a row of glowing shop windows, warm light slides across his hood as he walks by without stopping, slow dolly following him from behind, wet asphalt, bokeh of street lamps, moody, music video style, no text' },
-  { id: 'N03', dur: DUR_MAX, prompt: 'Cinematic close-up portrait at night, young man in a hoodie with a blank stare, neon signs reflected in his eyes and sliding across his face, a sign flickers and a red neon glow sweeps over his cheek, shallow depth of field, blurred neon bokeh behind, 50mm lens, moody music video style, no text' },
+  // ---- АКТ 1 · СТАРЫЙ КАНАЛ (0-45): холодный нуар ----
+  { id: 'S01', dur: DUR_MAX, prompt: `Cinematic 4k music video shot, 35mm anamorphic lens. ${HERO}, stands completely still on a crowded modern city street at cold gray dawn. Heavy rain. Blurred crowds of people rush past him in fast motion blur around his still figure. Moody blue-gray color palette, premium film production quality, photorealistic, cinematic lighting, reflections of headlights in wet asphalt, no text, no watermark` },
+  { id: 'S02', dur: DUR_MAX, prompt: `Cinematic 4k music video shot, 35mm anamorphic lens. Slow dolly zoom pulling back, isolating the same ${HERO}, from the rushing motion-blurred crowd of people at cold gray dawn in heavy rain. Moody blue-gray palette, deep depth, premium film production quality, photorealistic, cinematic lighting, no text, no watermark` },
+  { id: 'S03', dur: DUR_MAX, prompt: `Close-up cinematic shot through the glass door of a moving subway car. The tired expressive face of the ${HERO}, reflections on the glass overlaying his face, dark concrete tunnel walls flashing outside. Monotonous oppressive underground techno aesthetic, deep shadows, cinematic reflections, 4k, photorealistic, no text, no watermark` },
+  { id: 'S04', dur: DUR_MAX, prompt: `Close-up cinematic shot inside a moving subway car. The hand of a man in a dark hoodie slowly scrolling a smartphone screen with glowing social media feeds, someone else's luxury cars and success graphs, dark concrete tunnel walls flashing outside the window, reflections mixing layers on the glass. Monotonous, oppressive underground techno aesthetic, deep shadows, cinematic, 4k, photorealistic, no text, no watermark` },
+  { id: 'S05', dur: DUR_MAX, prompt: `Medium shot. The ${HERO}, standing inside a glass elevator of a modern anonymous office building, looking out through the glass at cold monolithic concrete architecture. Slow vertical tilt up parallel to the rising elevator. Depressing gray-blue tones, natural human movement, professional cinematography, photorealistic, 16:9, no text, no watermark` },
+  { id: 'S06', dur: DUR_MAX, prompt: `Slow cinematic tilt up over a panorama of faceless gray office buildings and rows of identical windows at cold dusk, passengers in shadow inside a glass business center elevator staring down at glowing phone screens. Depressing gray-blue tones, professional cinematography, photorealistic, 16:9, no text, no watermark` },
 
-  // ---- БРЕЙК 1: зеркало города (38-46) ----
-  { id: 'N04', dur: DUR_MAX, prompt: 'Cinematic macro shot of a rain puddle on dark asphalt at night, a whole neon city reflected perfectly in the still water, a single raindrop falls and ripples break the reflection into shimmering fragments, then the neon sign in the reflection flares brighter, high detail, moody, music video style, no text' },
+  // ---- АКТ 2 · ДВА ВЗГЛЯДА (45-80): дуализм, стекло ----
+  { id: 'S07', dur: DUR_MAX, prompt: `Cinematic shot on a rainy city street at cold gray dusk. The ${HERO}, stands before a large glass store window; one side of the frame shows a dark, hopeless rainy street. Moody blue-gray noir palette, deep shadows, reflections of headlights in wet asphalt, premium film production quality, photorealistic, 4k, no text, no watermark` },
+  { id: 'S08', dur: DUR_MAX, prompt: `Cinematic match cut shot, slow camera pan left to right across a large glass store window on a city street. In the reflection the same rainy street transforms: warm golden light rays break through heavy clouds, revealing beautiful architectural textures, warm stone details and an open empty road ahead. The ${HERO}, notices it and slightly tilts his head. Sophisticated lighting, realistic glass reflections, warm golden versus cold blue-gray contrast, 4k, photorealistic, no text, no watermark` },
+  { id: 'S09', dur: DUR_MAX, prompt: `Cinematic macro shot. A single rain droplet on a metal handrail refracting and bending golden warm light, ultra shallow depth of field, 35mm lens, photorealistic water texture, soft golden bokeh, intimate contemplative mood, 4k, no text, no watermark` },
+  { id: 'S10', dur: DUR_MAX, prompt: `Cinematic macro shot with a fast rack focus shift from a rain droplet refracting golden light on a metal handrail to the thoughtful face of the ${HERO}, observing it. Subtle internal transformation, intelligent gaze, photorealistic, shallow depth of field, 35mm lens, warm light, no text, no watermark` },
 
-  // ---- ДРОП 1: неоновый канал (46-74) ----
-  { id: 'N05', dur: DUR_MAX, prompt: 'Cinematic wet night street with neon signs on both sides, camera pushing steadily forward at street level, pedestrians with umbrellas cross the frame one by one, neon reflections stretching long across the wet asphalt, vibrant magenta and cyan palette, anamorphic bokeh, atmospheric drizzle, music video aesthetic, no text' },
-  { id: 'N06', dur: DUR_MAX, prompt: 'Cinematic night crossroads in heavy rain, cars waiting at a red light with headlights glowing through mist, traffic light switches to green and the cars burst forward, tires whipping spray out of puddles, streaks of tail lights, filmed from a low angle across the intersection, dynamic, music video style, no text' },
-  { id: 'N07', dur: DUR_MAX, prompt: 'Cinematic night street food market, steam rising from food stalls with warm hanging bulbs, a cook tosses noodles in a flaming wok and the fire flashes up, customers laugh and clink skewers, strings of lights flickering, rich warm colors against deep blue night, handheld energy, music video style, no text' },
+  // ---- АКТ 3 · ПЕРВЫЙ ВСПЛЕСК (80-110): войд экранов ----
+  { id: 'S11', dur: DUR_MAX, prompt: `Epic cinematic shot in a dark abstract void. The ${HERO}, stands calmly surrounded by dozens of flat floating screens, each screen showing a different version of the same gray city. Cold silver light, deep black space, subtle glow from the screens, high contrast, premium vfx look, photorealistic, 4k, no text, no watermark` },
+  { id: 'S12', dur: DUR_MAX, prompt: `Epic cinematic shot in a dark abstract void. The ${HERO}, walks calmly toward the grayest most colorless floating screen and firmly touches it with one finger, his faint reflection in the dark glass. Cold silver rim light, tense anticipation, deep black space, premium vfx, photorealistic, 4k, no text, no watermark` },
+  { id: 'S13', dur: DUR_MAX, prompt: `Epic cinematic drop sequence with a dynamic 180-degree camera orbit. A flat gray screen shatters into hundreds of luminous glowing silver fragments flying past the camera toward the viewer, revealing a bright warm light horizon behind the broken screen; the ${HERO}, stands still at the center. High-speed camera effect, breathtaking premium vfx, silver sparks, photorealistic, 4k, no text, no watermark` },
 
-  // ---- ДРОП 2: живая ночная фактура (82-142) ----
-  { id: 'N08', dur: DUR_MAX, prompt: 'Cinematic narrow night alley with graffiti walls lit by neon, a stray cat dashes across the frame, a faulty neon sign buzzes off and on and suddenly floods the whole wall with electric pink light, wet puddles mirroring the glow, slow camera creep forward, texture of brick and spray paint, music video style, no text' },
-  { id: 'N09', dur: DUR_MAX, prompt: 'Cinematic subway platform at night, a young man in a hoodie stands still near the edge, an express train blasts past behind him and horizontal light streaks sweep across his face, wind from the train ripples his hood and jacket, train lights vanishing into the tunnel, high contrast, slow motion feel, music video style, no text' },
-  { id: 'N10', dur: DUR_MAX, prompt: 'Cinematic nightclub interior, rotating light beams sweeping through haze over a moving crowd, silhouettes dancing in sync, a strobe light kicks in and freezes the crowd in bright flashes, deep shadows and vivid beams, slow push through the dance floor, anamorphic flares, music video style, no text' },
-  { id: 'N14', dur: DUR_MAX, prompt: 'Cinematic late night diner seen from the street, people at the counter with steam rising from coffee cups, a big neon sign flickers and stabilizes, its pink light spilling across the wet sidewalk toward the camera, reflections in the glass, nostalgic film grain, quiet nocturnal mood, music video style, no readable text' },
+  // ---- АКТ 4 · ИРОНИЯ (110-135): Уэс Андерсон, бытовая самоирония ----
+  { id: 'S14', dur: DUR_MAX, prompt: `Understated visual comedy scene, static frontal medium shot in Wes Anderson style, realistic tones. An ordinary man sits on a simple sofa in a mundane unchanged apartment room and proudly, with a victorious expression, changes his smartphone wallpaper to a luxury image, golden light glowing on his face from the screen. Clean symmetrical composition, dry humor, natural acting, photorealistic, 4k, no text, no watermark` },
+  { id: 'S15', dur: DUR_MAX, prompt: `Understated visual comedy scene, static frontal medium shot, realistic tones. The same man on the sofa slowly raises his eyes from the smartphone and looks around his absolutely gray dull unchanged apartment room with a blank absurd expression. Clean symmetrical composition, dry humor, realistic human behavior, natural window light, photorealistic, 4k, no text, no watermark` },
+  { id: 'S16', dur: DUR_MAX, prompt: `Close-up shot with a slow push-in. The ${HERO}, looks toward the camera with a subtle intelligent ironic half-smile, a knowing look of understated self-irony. Rich bokeh, cinematic lighting, warm neutral tones, photorealistic, 4k, no text, no watermark` },
 
-  // ---- ПЕРЕХОД: наверх (142-156) ----
-  { id: 'N11', dur: DUR_MAX, prompt: 'Cinematic shot of a young man in a hoodie climbing an iron fire escape at night, flight after flight, city lights growing larger behind him with every level, he finally steps out onto a rooftop edge, camera following from below then rising with him, cold night wind, industrial textures, dramatic city glow, music video style, no text' },
+  // ---- АКТ 5 · ВНУТРЕННИЙ ПЕРЕХОД (135-160): глитчи -> искры, туннель ----
+  { id: 'S17', dur: DUR_MAX, prompt: `Cinematic build-up shot, detailed macro close-up on the shoulder and hands of the ${HERO}, in his black wool coat. Thin blue digital glitch lines appear and run around the fabric, then smoothly dissolve into a soft flow of silver particles and warm golden light dust. Sophisticated sci-fi realism, magical but grounded visual effect, photorealistic, 4k, no text, no watermark` },
+  { id: 'S18', dur: DUR_MAX, prompt: `Cinematic tracking shot, camera retreating backwards in front of the ${HERO}, walking confidently through a long dark concrete underpass tunnel, his steady steps echoing, cold dim light, deep shadows, industrial concrete texture, photorealistic, 4k, 16:9, no text, no watermark` },
+  { id: 'S19', dur: DUR_MAX, prompt: `Cinematic tracking shot in a long underpass tunnel: with every confident step of the man in a black wool coat, the cold concrete walls behind him transform into polished mirror surfaces reflecting warm golden light, and at the end of the tunnel a bright exit glows. Architectural light transformation, no magic, steady camera movement, photorealistic, 4k, no text, no watermark` },
 
-  // ---- ФИНАЛ: крыша/горизонт (156-214) ----
-  { id: 'N12', dur: DUR_MAX, prompt: 'Cinematic rooftop panorama at night, vast neon city stretching to the horizon, a young man stands at the edge facing the skyline, he pulls back his hood, night wind in his hair, city lights flicker in a slow wave across the skyline as if breathing, camera slowly circling him, emotional, anamorphic, music video style, no text' },
-  { id: 'N13', dur: DUR_MAX, prompt: 'Cinematic night sky at the edge of dawn, deep blue overhead fading into a thin orange line on the horizon, stars going out one by one, low clouds catching pink and orange city glow from below, a distant plane blinking across the frame, very slow upward tilt, majestic and calm, music video style, no text' },
-  { id: 'N15', dur: DUR_MAX, prompt: 'Cinematic night drive over a long city bridge, camera tracking a single car from the side, headlight beams drawing long light trails, the river below mirroring the city lights in moving colors, the car pulls away toward the glowing skyline, light rain sparkle, dynamic tracking shot, music video style, no text' },
-  { id: 'N16', dur: DUR_MAX, prompt: 'Cinematic finale on a rooftop at night, young man without hood standing at the roof edge with the entire neon city behind him, he takes one calm step toward the light, camera slowly rises and pulls back revealing the endless glowing city and a faint dawn line appearing on the far horizon, hopeful, anamorphic lens flare, film look, no text' },
+  // ---- АКТ 6 · НА ВЫСОТЕ (160-195): золото, рассвет, триумф ----
+  { id: 'S20', dur: DUR_MAX, prompt: `Grand final drop scene, wide crane shot. The ${HERO}, steps out through a door onto the massive rooftop of a modern skyscraper overlooking a vast city; heavy clouds part away and intense golden morning sunlight floods the glass architecture, wind blows his black coat. Epic panoramic view, high production value, cinematic scale, photorealistic, 4k, no text, no watermark` },
+  { id: 'S21', dur: DUR_MAX, prompt: `Epic cinematic 360-degree crane orbit around the ${HERO}, standing at the edge of a skyscraper rooftop, golden morning sunlight flooding a vast modern city below, clouds parting, wind in his coat, majestic scale, high production value, anamorphic lens flares, photorealistic, 4k, no text, no watermark` },
+  { id: 'S22', dur: DUR_MAX, prompt: `Cinematic drone aerial shot of a magnificent modern city grid at golden hour sunrise. Sunlight reflecting off glass skyscraper facades, shadows retreating, clear open roads with cars starting to move. The frame is wide, majestic, full of space and freedom, premium color grading, photorealistic, 4k, no text, no watermark` },
+  { id: 'S23', dur: DUR_MAX, prompt: `Cinematic FPV drone shot slowly pushing in toward a calm man in a black wool coat standing quietly on a skyscraper rooftop at golden sunrise, the city glowing below, he simply breathes deeply, accepting responsibility for his next step. Majestic, warm golden light, premium color grading, photorealistic, 4k, no text, no watermark` },
+
+  // ---- АКТ 7 · АУТРО (195-214): интимно, выдох, уход в свет ----
+  { id: 'S24', dur: DUR_MAX, prompt: `Extreme close-up shot, static, soft bokeh. The face of the 33-year-old man with short dark hair looking out at a sunlit city; he takes a slow calm breath and gives a subtle confident genuine smile of inner peace and clarity, warm morning light illuminating his features. High emotional depth, photorealistic, 35mm lens, 4k, no text, no watermark` },
+  { id: 'S25', dur: DUR_MAX, prompt: `Cinematic wide low-angle shot, slow pull-back and descent. A man in a black wool coat turns away from the camera and walks forward across a rooftop into the warm morning sunlight; the upper half of the frame is clean negative space with a soft gradient sky and silhouettes of distant buildings, perfect for titles. Minimalist, philosophical, atmospheric ending, warm golden light, photorealistic, 4k, no text, no watermark` },
 ];
 
 const budgetMs = (Number(process.argv[2] || 540)) * 1000;
@@ -64,7 +80,7 @@ const have = (id) => {
   return fs.existsSync(f) && fs.statSync(f).size > 50000;
 };
 const save = () => fs.writeFileSync(STATE, JSON.stringify(state, null, 1));
-const count = () => fs.readdirSync(OUT_DIR).filter(f => /^N\d+\.mp4$/.test(f)).length;
+const count = () => fs.readdirSync(OUT_DIR).filter(f => /^S\d+\.mp4$/.test(f)).length;
 const TOTAL = SHOTS.length;
 
 async function dl(url, file) {

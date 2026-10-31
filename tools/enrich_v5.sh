@@ -1,31 +1,31 @@
 #!/bin/bash
-# tools/enrich_v5.sh — полный цикл CH 02 «Смени канал» · NIGHT (v5).
+# tools/enrich_v5.sh — полный цикл CH 02 «Смени канал» (v5, план Б: монтажный лист юзера).
 # Запуск: nohup bash tools/enrich_v5.sh > logs/enrich_v5.log 2>&1 &
-# Фазы: A) генерация N01-N16 (film_gen_ch2, resume, частичные пуши)
+# Фазы: A) генерация S01-S25 (film_gen_ch2, resume, частичные пуши)
 #       B) build_film_ch2  C) encode_web_ch2  D) деплой-коммит (cache-bust ?v=5)
-# Страховка от откатов диска: каждый скачанный N-кадр + состояние уходят на GitHub.
+# Страховка от откатов диска: каждый скачанный S-кадр + состояние уходят на GitHub.
 set -u
 cd "$(dirname "$0")/.." || exit 1
 mkdir -p logs
 QDIR="aivideo/film_ch2"
-TOTAL=16
+TOTAL=25
 STATE="$QDIR/gen_state.json"
 last_pushed=0
 
 log() { echo "[$(date '+%m-%d %H:%M:%S')] $*"; }
 
-have() { ls $QDIR/N*.mp4 2>/dev/null | wc -l; }
+have() { ls $QDIR/S*.mp4 2>/dev/null | wc -l; }
 
 push_partial() {
-  # страховка от отката диска: N-кадры + gen_state уходят на GitHub
+  # страховка от отката диска: S-кадры + gen_state уходят на GitHub
   git add "$QDIR" 2>/dev/null
   if git diff --cached --quiet; then return; fi
   git pull --rebase origin main >/dev/null 2>&1 || git pull origin main >/dev/null 2>&1
-  git commit -m "CH 02 v5: AI-кадры NIGHT (частично $1/16)" >/dev/null 2>&1 || return
-  git push origin main >/dev/null 2>&1 && log "partial push $1/16 OK" || log "partial push FAILED"
+  git commit -m "CH 02 v5-Б: AI-кадры по монтажному листу (частично $1/25)" >/dev/null 2>&1 || return
+  git push origin main >/dev/null 2>&1 && log "partial push $1/25 OK" || log "partial push FAILED"
 }
 
-# Фаза A: генерация N-кадров
+# Фаза A: генерация S-кадров
 log "PHASE A start: have $(have)/$TOTAL"
 # самовосстановление SDK: node_modules не в git и умирает при откате диска
 if [ ! -d node_modules/z-ai-web-dev-sdk ]; then
@@ -69,6 +69,6 @@ sed -i 's|video/ch2_night\.mp4?v=[0-9]*"|video/ch2_night.mp4"|; s|video/ch2_nigh
 grep -n 'ch2_night' index.html | head -2
 git add -A video/ch2_night.mp4 index.html aivideo/film_ch2 tools
 git pull --rebase origin main >/dev/null 2>&1 || git pull origin main >/dev/null 2>&1
-git commit -m "CH 02 v5: клип NIGHT полностью из 16 AI-кадров (деплой, cache-bust ?v=5)" || log "nothing to commit"
+git commit -m "CH 02 v5-Б: клип по монтажному листу юзера, 25 AI-кадров (деплой, cache-bust ?v=5)" || log "nothing to commit"
 git push origin main && log "PUSH OK" || { log "PUSH FAILED"; exit 6; }
 log "ENRICH_V5_DONE_PUSHED"
