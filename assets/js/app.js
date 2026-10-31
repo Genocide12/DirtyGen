@@ -113,7 +113,7 @@
              soundRetry = true;
              return;
            }
-           if (n < 12) setTimeout(() => attempt(n + 1), 450);
+           if (n < 40) setTimeout(() => attempt(n + 1), 450);
          });
       }
     };
@@ -202,6 +202,28 @@
     const v0 = videos[0];
     v0.muted = false;
     startVideo(v0);
+    // тихий анлок остальных каналов В ТОМ ЖЕ ЖЕСТЕ: unmuted play при
+    // volume=0 «благословляет» элемент — после этого звук разрешён и вне
+    // жеста (переключение колесом/стрелками). iOS volume не меняет
+    // (остаётся 1) — там пропускаем: свайп/клик сам является жестом.
+    for (let k = 1; k < CHANNELS.length; k++) {
+      if (!CHANNELS[k].file) continue;
+      const u = videos[k];
+      try {
+        u.volume = 0;
+        if (u.volume !== 0) continue; // iOS: тихий анлок недоступен
+        u.muted = false;
+        const p = u.play();
+        if (p && p.then) {
+          p.then(() => {
+            if (videos[cur] !== u) { u.pause(); try { u.currentTime = 0; } catch (e) {} }
+            try { u.volume = 1; } catch (e) {}
+          }).catch(() => { try { u.volume = 1; } catch (e) {} });
+        } else {
+          u.pause(); try { u.volume = 1; } catch (e) {}
+        }
+      } catch (e) { /* noop */ }
+    }
     // прогреваем все каналы для мобильных
     for (let k = 0; k < CHANNELS.length; k++) {
       if (CHANNELS[k].file) videos[k].preload = "auto";
@@ -284,6 +306,9 @@
       if (!c || !c.file) return; // страница артиста — без плеера
       const v = videos[cur];
       if (!v) return;
+      // клип играет, но звук ещё ждёт жеста: этот тап только возвращает
+      // звук, НЕ ставя клип на паузу (иначе «тап за звук» паузил видео)
+      if (soundRetry && !v.paused && v.muted) { retrySound(); return; }
       const now = performance.now();
       if (now - lastSwitch < 800) return; // это был свайп/переключение
       if (now - lastTap < 350) return;    // защита от двойного тапа
