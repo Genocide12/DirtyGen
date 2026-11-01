@@ -39,7 +39,7 @@ for i in $(seq 1 120); do
   log "gen iter $i (have $n/$TOTAL)"
   node tools/film_gen_ch2.mjs 240 3 || log "film_gen_ch2 exit $?"
   n=$(have)
-  if [ $((n - last_pushed)) -ge 3 ]; then push_partial "$n"; last_pushed=$n; fi
+  if [ $((n - last_pushed)) -ge 1 ]; then push_partial "$n"; last_pushed=$n; fi
 done
 
 n=$(have)
